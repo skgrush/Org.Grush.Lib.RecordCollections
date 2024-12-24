@@ -9,6 +9,17 @@ namespace Org.Grush.Lib.RecordCollections
 
     public static RecordCollection<T> Create<T>(ReadOnlySpan<T> items)
       => RecordCollection<T>.Empty.AddRange(items);
+
+    public static RecordCollection<T> ToRecordCollection<T>(this IEnumerable<T> enumerable)
+      => CreateRange(enumerable);
+
+    public static RecordCollection<T> CreateRange<T>(IEnumerable<T> enumerable)
+    {
+      if (enumerable is RecordCollection<T> c)
+        return c;
+
+      return RecordCollection<T>.Empty.AddRange(enumerable);
+    }
   }
 
 #if NET8_0_OR_GREATER
@@ -16,16 +27,13 @@ namespace Org.Grush.Lib.RecordCollections
 #endif
   public sealed class RecordCollection<T> : IImmutableList<T>, IEquatable<IImmutableList<T>>
   {
-    public static readonly RecordCollection<T> Empty =
-#if NET8_0_OR_GREATER
-      new([]);
-#else
-    new RecordCollection<T>(ImmutableArray<T>.Empty);
-#endif
+    public static readonly RecordCollection<T> Empty = new([]);
 
-    private readonly IImmutableList<T> _list;
+    private readonly ImmutableList<T> _list;
 
-    private RecordCollection(IImmutableList<T> list) => _list = list;
+    internal RecordCollection(ImmutableList<T> list) => _list = list;
+
+    public static explicit operator ImmutableList<T>(RecordCollection<T> r) => r._list;
 
     public bool IsEmpty => _list.Count is 0;
 
@@ -37,8 +45,51 @@ namespace Org.Grush.Lib.RecordCollections
       var immutableItems = ImmutableList.Create(items);
       if (IsEmpty)
         return new RecordCollection<T>(immutableItems);
-      return (RecordCollection<T>)AddRange(immutableItems);
+      return AddRange(immutableItems);
     }
+
+    #region IImmutableList implementation overrides
+
+    public RecordCollection<T> Add(T value) => new(_list.Add(value));
+
+    public RecordCollection<T> AddRange(IEnumerable<T> items)
+    {
+      if (items is ICollection<T> { Count: 0 })
+        return this;
+      return new RecordCollection<T>(_list.AddRange(items));
+    }
+
+    public RecordCollection<T> Clear()
+      => new(_list.Clear());
+
+    public RecordCollection<T> Insert(int index, T element)
+      => new(_list.Insert(index, element));
+
+    public RecordCollection<T> InsertRange(int index, IEnumerable<T> items)
+      => new(_list.InsertRange(index, items));
+
+    public RecordCollection<T> Remove(T value, IEqualityComparer<T>? equalityComparer) =>
+      new(_list.Remove(value, equalityComparer));
+
+    public RecordCollection<T> RemoveAll(Predicate<T> match)
+      => new(_list.RemoveAll(match));
+
+    public RecordCollection<T> RemoveAt(int index)
+      => new(_list.RemoveAt(index));
+
+    public RecordCollection<T> RemoveRange(IEnumerable<T> items, IEqualityComparer<T>? equalityComparer) =>
+      new(_list.RemoveRange(items, equalityComparer));
+
+    public RecordCollection<T> RemoveRange(int index, int count)
+      => new(_list.RemoveRange(index, count));
+
+    public RecordCollection<T> Replace(T oldValue, T newValue, IEqualityComparer<T>? equalityComparer) =>
+      new(_list.Replace(oldValue, newValue, equalityComparer));
+
+    public RecordCollection<T> SetItem(int index, T value)
+      => new(_list.SetItem(index, value));
+
+    #endregion IImmutableList implementation overrides
 
     #region IImmutableList implementation
     public IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
@@ -49,51 +100,47 @@ namespace Org.Grush.Lib.RecordCollections
 
     public T this[int index] => _list[index];
 
-    public IImmutableList<T> Add(T value)
-      => new RecordCollection<T>(_list.Add(value));
+    IImmutableList<T> IImmutableList<T>.Add(T value)
+      => Add(value);
 
-    public IImmutableList<T> AddRange(IEnumerable<T> items)
-    {
-      if (items is ICollection<T> { Count: 0 })
-        return this;
-      return new RecordCollection<T>(_list.AddRange(items));
-    }
+    IImmutableList<T> IImmutableList<T>.AddRange(IEnumerable<T> items)
+      => AddRange(items);
 
-    public IImmutableList<T> Clear()
-      => new RecordCollection<T>(_list.Clear());
+    IImmutableList<T> IImmutableList<T>.Clear()
+      => Clear();
 
     public int IndexOf(T item, int index, int count, IEqualityComparer<T>? equalityComparer)
       => _list.IndexOf(item, index, count, equalityComparer);
 
-    public IImmutableList<T> Insert(int index, T element)
-      => new RecordCollection<T>(_list.Insert(index, element));
+    IImmutableList<T> IImmutableList<T>.Insert(int index, T element)
+      => Insert(index, element);
 
-    public IImmutableList<T> InsertRange(int index, IEnumerable<T> items)
-      => new RecordCollection<T>(_list.InsertRange(index, items));
+    IImmutableList<T> IImmutableList<T>.InsertRange(int index, IEnumerable<T> items)
+      => InsertRange(index, items);
 
     public int LastIndexOf(T item, int index, int count, IEqualityComparer<T>? equalityComparer)
       => _list.LastIndexOf(item, index, count, equalityComparer);
 
-    public IImmutableList<T> Remove(T value, IEqualityComparer<T>? equalityComparer)
-      => new RecordCollection<T>(_list.Remove(value, equalityComparer));
+    IImmutableList<T> IImmutableList<T>.Remove(T value, IEqualityComparer<T>? equalityComparer)
+      => Remove(value, equalityComparer);
 
-    public IImmutableList<T> RemoveAll(Predicate<T> match)
-      => new RecordCollection<T>(_list.RemoveAll(match));
+    IImmutableList<T> IImmutableList<T>.RemoveAll(Predicate<T> match)
+      => RemoveAll(match);
 
-    public IImmutableList<T> RemoveAt(int index)
-      => new RecordCollection<T>(_list.RemoveAt(index));
+    IImmutableList<T> IImmutableList<T>.RemoveAt(int index)
+      => RemoveAt(index);
 
-    public IImmutableList<T> RemoveRange(IEnumerable<T> items, IEqualityComparer<T>? equalityComparer)
-      => new RecordCollection<T>(_list.RemoveRange(items, equalityComparer));
+    IImmutableList<T> IImmutableList<T>.RemoveRange(IEnumerable<T> items, IEqualityComparer<T>? equalityComparer)
+      => RemoveRange(items, equalityComparer);
 
-    public IImmutableList<T> RemoveRange(int index, int count)
-      => new RecordCollection<T>(_list.RemoveRange(index, count));
+    IImmutableList<T> IImmutableList<T>.RemoveRange(int index, int count)
+      => RemoveRange(index, count);
 
-    public IImmutableList<T> Replace(T oldValue, T newValue, IEqualityComparer<T>? equalityComparer)
-      => new RecordCollection<T>(_list.Replace(oldValue, newValue, equalityComparer));
+    IImmutableList<T> IImmutableList<T>.Replace(T oldValue, T newValue, IEqualityComparer<T>? equalityComparer)
+      => Replace(oldValue, newValue, equalityComparer);
 
-    public IImmutableList<T> SetItem(int index, T value)
-      => new RecordCollection<T>(_list.SetItem(index, value));
+    IImmutableList<T> IImmutableList<T>.SetItem(int index, T value)
+      => SetItem(index, value);
     #endregion IImmutableList implementation
 
     #region equality
@@ -101,7 +148,7 @@ namespace Org.Grush.Lib.RecordCollections
       => Equals(obj as IImmutableList<T>);
 
     public bool Equals(IImmutableList<T>? other)
-      => this.SequenceEqual(other ?? ImmutableList<T>.Empty);
+      => other is not null && this.SequenceEqual(other);
 
     // private int? _hashCache;
     public override int GetHashCode()
