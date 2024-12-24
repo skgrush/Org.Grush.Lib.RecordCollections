@@ -22,6 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Org.Grush.Lib.RecordCollections.Newtonsoft\Org.Grush.Lib.RecordCollections.Newtonsoft.csproj" />
       <ProjectReference Include="..\Org.Grush.Lib.RecordCollections\Org.Grush.Lib.RecordCollections.csproj" />
     </ItemGroup>
 

@@ -1,4 +1,9 @@
+using System.Collections.Immutable;
+using System.Text.Json.Serialization;
 using FluentAssertions;
+using Newtonsoft.Json;
+using Org.Grush.Lib.RecordCollections.Newtonsoft;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Org.Grush.Lib.RecordCollections.Tests;
 
@@ -8,34 +13,154 @@ public record TestRecord<TA, TB>(TA A, TB B);
 
 public class RecordCollectionShould
 {
+  public class BeInitializable
+  {
+    [Fact]
+    public void UsingStaticCreateMethod()
+    {
+      // Act
+      var collection = RecordCollection.Create(["A", "B"]);
+
+      // Assert
+      collection
+        .Should()
+        .SatisfyRespectively(
+          a => a.Should().Be("A"),
+          b => b.Should().Be("B")
+        );
+    }
+
+    [Fact]
+    public void UsingCollectionExpression()
+    {
+      // Act
+      RecordCollection<double> collection = [3.14159, double.NaN, double.PositiveInfinity];
+
+      // Assert
+      collection
+        .Should()
+        .SatisfyRespectively(
+          a => a.Should().Be(3.14159),
+          b => b.Should().Be(double.NaN),
+          c => c.Should().Be(double.PositiveInfinity)
+        );
+    }
+
+    [Fact]
+    public void UsingTheEnumerableExtension()
+    {
+      // Assemble
+      List<int> oldList = [1, 2, 3];
+
+      // Act
+      var coll = oldList.ToRecordCollection();
+
+      // Assert
+      coll
+        .Should()
+        .BeOfType<RecordCollection<int>>()
+        .And
+        .BeEquivalentTo(oldList);
+    }
+  }
+
   public class BeEquatable
   {
     [Fact]
-    public void ForValueTypes()
+    public void WhenContainingValueTypes()
     {
       // Assemble
-      var collectionA = RecordCollection.Create([1, 2, 3]);
-      var collectionB = RecordCollection.Create([1, 2, 3]);
+      RecordCollection<int> collectionA = [1, 2, 3];
+      RecordCollection<int> collectionB = [1, 2, 3];
 
       // Act
-      var areEqual = collectionA.Equals(collectionB);
+      var areEqual = Equals(collectionA, collectionB);
 
       // Assert
       areEqual.Should().BeTrue();
     }
 
     [Fact]
-    public void ForReferenceTypes()
+    public void WhenContainingReferenceTypes()
     {
       // Assemble
       var collectionA = RecordCollection.Create([new TestRecordOfInts(1, 2), new TestRecordOfInts(3, 4)]);
       var collectionB = RecordCollection.Create([new TestRecordOfInts(1, 2), new TestRecordOfInts(3, 4)]);
 
       // Act
-      var areEqual = collectionA.Equals(collectionB);
+      var areEqual = Equals(collectionA, collectionB);
 
       // Assert
       areEqual.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public void WithNullValues(bool oneEmpty, bool reversed)
+    {
+      // Assemble
+      RecordCollection<int>? collectionA = oneEmpty ? [] : [1, 2, 3];
+      RecordCollection<int>? collectionB = null;
+
+      if (reversed)
+        (collectionA, collectionB) = (collectionB, collectionA);
+
+      // Act
+      var areEqual = Equals(collectionA, collectionB);
+
+      // Assert
+      areEqual
+        .Should()
+        .BeFalse();
+    }
+
+    [Fact]
+    public void ForUseInDictionaries()
+    {
+      // Assemble
+      RecordCollection<string> collectionA = ["a", "b"];
+      RecordCollection<string> collectionB = ["a", "b"];
+      RecordCollection<string> unrelatedCollection = ["b", "a"];
+
+      Dictionary<RecordCollection<string>, object> testDict = [];
+
+      // Act
+      var uniqueValue = new { Anonymous = true };
+
+      testDict[collectionA] = uniqueValue;
+
+      var retrievedValue = testDict[collectionB];
+
+      var containsUnrelatedCollection = testDict.ContainsKey(unrelatedCollection);
+
+      // Assert
+      retrievedValue.Should().BeSameAs(uniqueValue);
+      containsUnrelatedCollection.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ForUseInHashSets()
+    {
+      // Assemble
+      RecordCollection<double> collectionA = [3.14159, double.PositiveInfinity];
+      RecordCollection<double> collectionB = [3.14159, double.PositiveInfinity];
+      RecordCollection<double> unrelatedCollection = [double.PositiveInfinity, 3.14159];
+
+      HashSet<RecordCollection<double>> set = [];
+
+      // Act
+      set.Add(collectionA);
+
+      var containCollectionB = set.Contains(collectionB);
+
+      var containsUnrelatedCollection = set.Contains(unrelatedCollection);
+
+      // Assert
+      containCollectionB.Should().BeTrue();
+      containsUnrelatedCollection.Should().BeFalse();
     }
 
     [Fact]
@@ -46,7 +171,7 @@ public class RecordCollectionShould
       var recordB = new TestRecordOfCollections([1, 2], [3, 4]);
 
       // Act
-      var areEqual = recordA.Equals(recordB);
+      var areEqual = Equals(recordA, recordB);
 
       // Assert
       areEqual.Should().BeTrue();
@@ -80,8 +205,11 @@ public class RecordCollectionShould
     {
       public Serializers()
       {
-        Add("System.Text.Json", obj => System.Text.Json.JsonSerializer.Serialize(obj));
-        Add("Newtonsoft", obj => Newtonsoft.Json.JsonConvert.SerializeObject(obj));
+        Add("System.Text.Json", obj => JsonSerializer.Serialize(obj));
+        Add("Newtonsoft", obj => JsonConvert.SerializeObject(obj, new JsonSerializerSettings
+        {
+          Converters = { new RecordCollectionNewtonsoftJsonConverterFactory() }
+        }));
       }
     }
   }
@@ -89,31 +217,65 @@ public class RecordCollectionShould
   public class BeDeserializable
   {
     [Theory]
-    [ClassData(typeof(Deserializers<TestRecord<RecordCollection<int>, RecordCollection<string>>>))]
-    public void WithMultipleLayers(string name,
-      Func<string, TestRecord<RecordCollection<int>, RecordCollection<string>>> deserializer)
+    [ClassData(typeof(RuntimeDeserializers<RecordCollection<string?>>))]
+    public void AtRuntime_WithSingleLayer(string name, Func<string, RecordCollection<string?>> deserializer)
     {
       var json =
         """
-        {"A":[1,2,3],"B":["1","2","3"]}
+        ["a", "b", null]
         """;
 
       deserializer(json)
         .Should()
-        .BeEquivalentTo(new TestRecord<RecordCollection<int>, RecordCollection<string>>(
-          A: [1,2,3],
-          B: ["1", "2", "3"]
-        ));
+        .BeEquivalentTo(RecordCollection.Create(["a", "b", null]));
     }
 
-
-    public class Deserializers<T> : TheoryData<string, Func<string, T>>
+    [Theory]
+    [ClassData(typeof(RuntimeDeserializers<RecordCollection<TestRecord<RecordCollection<int>, RecordCollection<string>>>>))]
+    public void AtRuntime_WithMultipleLayers(string name,
+      Func<string, RecordCollection<TestRecord<RecordCollection<int>, RecordCollection<string>>>> deserializer)
     {
-      public Deserializers()
+      var json =
+        """
+        [{"A":[1,2,3],"B":["1","2","3"]}]
+        """;
+
+      deserializer(json)
+        .Should()
+        .BeEquivalentTo(RecordCollection.Create([new TestRecord<RecordCollection<int>, RecordCollection<string>>(
+          A: [1,2,3],
+          B: ["1", "2", "3"]
+        )]));
+    }
+
+    [Fact]
+    public void WithSourceGeneratedDeserializer()
+    {
+      var json =
+        """
+        ["a", "b", "c"]
+        """;
+
+      JsonSerializer.Deserialize(json, RecordCollectionOfStringContext.Default.RecordCollectionString)
+        .Should()
+        .BeEquivalentTo(RecordCollection.Create(["a", "b", "c"]));
+    }
+
+    public class RuntimeDeserializers<T> : TheoryData<string, Func<string, T>>
+    {
+      public RuntimeDeserializers()
       {
         Add("System.Text.Json", str => System.Text.Json.JsonSerializer.Deserialize<T>(str)!);
-        Add("Newtonsoft", str => Newtonsoft.Json.JsonConvert.DeserializeObject<T>(str)!);
+        Add("Newtonsoft", str => JsonConvert.DeserializeObject<T>(str, new JsonSerializerSettings
+        {
+          Converters = { new RecordCollectionNewtonsoftJsonConverterFactory() }
+        })!);
       }
     }
   }
 }
+
+[JsonSourceGenerationOptions(WriteIndented = true, Converters = [typeof(RecordCollectionJsonConverter<string>)])]
+[JsonSerializable(typeof(RecordCollection<string>))]
+[JsonSerializable(typeof(ImmutableList<string>))]
+internal partial class RecordCollectionOfStringContext : JsonSerializerContext;
