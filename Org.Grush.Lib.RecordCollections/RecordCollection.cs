@@ -23,7 +23,8 @@ namespace Org.Grush.Lib.RecordCollections
   }
 
 #if NET8_0_OR_GREATER
-[System.Runtime.CompilerServices.CollectionBuilder(typeof (RecordCollection), "Create")]
+  [System.Runtime.CompilerServices.CollectionBuilder(typeof (RecordCollection), "Create")]
+  [System.Text.Json.Serialization.JsonConverter(typeof(RecordCollectionJsonConverterFactory))]
 #endif
   public sealed class RecordCollection<T> : IImmutableList<T>, IEquatable<IImmutableList<T>>
   {
