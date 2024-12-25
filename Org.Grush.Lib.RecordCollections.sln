@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Grush.Lib.RecordCollect
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Grush.Lib.RecordCollections.Newtonsoft", "Org.Grush.Lib.RecordCollections.Newtonsoft\Org.Grush.Lib.RecordCollections.Newtonsoft.csproj", "{3C06016E-C5C0-4181-958D-209002D18E58}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Grush.Lib.RecordCollections.AotTests", "Org.Grush.Lib.RecordCollections.AotTests\Org.Grush.Lib.RecordCollections.AotTests.csproj", "{04F21E9B-9334-4037-B2BB-F4546D67078F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{3C06016E-C5C0-4181-958D-209002D18E58}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C06016E-C5C0-4181-958D-209002D18E58}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C06016E-C5C0-4181-958D-209002D18E58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04F21E9B-9334-4037-B2BB-F4546D67078F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04F21E9B-9334-4037-B2BB-F4546D67078F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04F21E9B-9334-4037-B2BB-F4546D67078F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04F21E9B-9334-4037-B2BB-F4546D67078F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
