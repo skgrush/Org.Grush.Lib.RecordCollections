@@ -256,7 +256,10 @@ public class RecordCollectionShould
         ["a", "b", "c"]
         """;
 
-      JsonSerializer.Deserialize(json, RecordCollectionOfStringContext.Default.RecordCollectionString)
+      JsonSerializer.Deserialize(
+          json: json,
+          jsonTypeInfo: RecordCollectionOfStringContext.Default.RecordCollectionString
+      )
         .Should()
         .BeEquivalentTo(RecordCollection.Create(["a", "b", "c"]));
     }

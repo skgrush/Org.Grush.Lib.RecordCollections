@@ -72,9 +72,40 @@ Newtonsoft deserialization is supported using the supplementary `Org.Grush.Lib.R
 either with the generic `RecordCollectionNewtonsoftJsonConverterFactory`,
 or if a specific type is known then `RecordCollectionNewtonsoftJsonConverter<T>` converter can be used directly.
 
+```cs
+using Newtonsoft.Json;
+using Org.Grush.Lib.RecordCollections.Newtonsoft;
+
+namespace TestProgram;
+
+string jsonData =
+  """
+  {
+    "Strings": ["a", "b"],
+    "Ints": [1, 2]
+  }
+  """;
+
+PairOfLists? pair1 = JsonConvert.DeserializeObject<T>(jsonData, new JsonSerializerSettings
+{
+  Converters = { new RecordCollectionNewtonsoftJsonConverterFactory() }
+});
+
+PairOfLists? pair2 = JsonConvert.DeserializeObject<T>(jsonData, new JsonSerializerSettings
+{
+  Converters = {
+    new RecordCollectionNewtonsoftJsonConverter<int>(),
+    new RecordCollectionNewtonsoftJsonConverter<string>(),
+  }
+});
+
+record PairOfLists(RecordCollection<string> Strings, RecordCollection<int> Ints);
+```
+
 ### System.Text.Json
-Reflection-based serialization is supported implicitly,
-but for AOT-compatible serialization the `RecordCollectionJsonConverter<T>` is provided by the core package:
+Reflection-based serialization **is supported implicitly**.
+
+For AOT-compatible serialization the `RecordCollectionJsonConverter<T>` is provided by the core package:
 
 ```cs
 using System.Text.Json;
@@ -88,7 +119,10 @@ string jsonData =
   [{ "Name": "Joseph", "Alias": "Joey" }, { "Name": "Tom" }]
   """;
 
-RecordCollection<Datum> data = JsonSerializer.Deserialize(jsonData, RecordCollectionOfDataContext.Default.RecordCollectionDatum);
+RecordCollection<Datum>? data = JsonSerializer.Deserialize(
+  json: jsonData,
+  jsonTypeInfo: RecordCollectionOfDataContext.Default.RecordCollectionDatum
+);
 
 
 
