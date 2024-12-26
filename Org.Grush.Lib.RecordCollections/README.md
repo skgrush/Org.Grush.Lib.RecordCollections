@@ -67,40 +67,6 @@ Serialization is implicitly supported by both System.Text.Json and Newtonsoft.
 
 ## Deserialization
 
-### Newtonsoft
-Newtonsoft deserialization is supported using the supplementary `Org.Grush.Lib.RecordCollections.Newtonsoft` package,
-either with the generic `RecordCollectionNewtonsoftJsonConverterFactory`,
-or if a specific type is known then `RecordCollectionNewtonsoftJsonConverter<T>` converter can be used directly.
-
-```cs
-using Newtonsoft.Json;
-using Org.Grush.Lib.RecordCollections.Newtonsoft;
-
-namespace TestProgram;
-
-string jsonData =
-  """
-  {
-    "Strings": ["a", "b"],
-    "Ints": [1, 2]
-  }
-  """;
-
-PairOfLists? pair1 = JsonConvert.DeserializeObject<T>(jsonData, new JsonSerializerSettings
-{
-  Converters = { new RecordCollectionNewtonsoftJsonConverterFactory() }
-});
-
-PairOfLists? pair2 = JsonConvert.DeserializeObject<T>(jsonData, new JsonSerializerSettings
-{
-  Converters = {
-    new RecordCollectionNewtonsoftJsonConverter<int>(),
-    new RecordCollectionNewtonsoftJsonConverter<string>(),
-  }
-});
-
-record PairOfLists(RecordCollection<string> Strings, RecordCollection<int> Ints);
-```
 
 ### System.Text.Json
 Reflection-based serialization **is supported implicitly**.
@@ -133,4 +99,39 @@ record Datum(string Name, string? Alias);
 [JsonSerializable(typeof(ImmutableList<Datum>))]
 [JsonSerializable(typeof(Datum))]
 internal partial class RecordCollectionOfDataContext : JsonSerializerContext;
+```
+
+### Newtonsoft
+Newtonsoft deserialization is supported using the supplementary `Org.Grush.Lib.RecordCollections.Newtonsoft` package,
+either with the generic `RecordCollectionNewtonsoftJsonConverterFactory`,
+or if a specific type is known then `RecordCollectionNewtonsoftJsonConverter<T>` converter can be used directly.
+
+```cs
+using Newtonsoft.Json;
+using Org.Grush.Lib.RecordCollections.Newtonsoft;
+
+namespace TestProgram;
+
+string jsonData =
+  """
+  {
+    "Strings": ["a", "b"],
+    "Ints": [1, 2]
+  }
+  """;
+
+PairOfLists? pair1 = JsonConvert.DeserializeObject<PairOfLists>(jsonData, new JsonSerializerSettings
+{
+  Converters = { new RecordCollectionNewtonsoftJsonConverterFactory() }
+});
+
+PairOfLists? pair2 = JsonConvert.DeserializeObject<PairOfLists>(jsonData, new JsonSerializerSettings
+{
+  Converters = {
+    new RecordCollectionNewtonsoftJsonConverter<int>(),
+    new RecordCollectionNewtonsoftJsonConverter<string>(),
+  }
+});
+
+record PairOfLists(RecordCollection<string> Strings, RecordCollection<int> Ints);
 ```
