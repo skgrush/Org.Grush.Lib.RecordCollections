@@ -30,17 +30,21 @@ jobs:
   build-and-publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: debug
+        run: |
+          echo "ref: ${{ github.ref }}"
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.x
+          dotnet-version: 9
       - name: Restore solution dependencies
         run: dotnet restore
       - name: Build libraries
         run: |
-          dotnet build -c Release --no-restore --project ./Org.Grush.Lib.RecordCollections
-          dotnet build -c Release --no-restore --project ./Org.Grush.Lib.RecordCollections.Newtonsoft
+          dotnet build ./Org.Grush.Lib.RecordCollections            -f net8.0 -c Release --no-restore --output ./dist/lib/net8
+          # build newtonsoft lib and core lib
+          dotnet build ./Org.Grush.Lib.RecordCollections.Newtonsoft           -c Release --no-restore --output ./dist/lib/nets
       - name: Tests
         run: dotnet test --no-restore --project ./Org.Grush.Lib.RecordCollections.Tests
       - name: AOT Tests
