@@ -1,0 +1,89 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: .NET
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+#  create-release:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Initialize Release
+#        uses: actions/create-release@v1
+#        id: create_release
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          tag_name: ${{ github.ref }}
+#          release_name: ${{ github.ref }}
+#          prerelease: ${{ contains(github.ref, '-rc.') }}
+#    outputs:
+#      release_upload_url: ${{ steps.create_release.outputs.upload_url }}
+
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 9.x
+      - name: Restore solution dependencies
+        run: dotnet restore
+      - name: Build libraries
+        run: |
+          dotnet build -c Release --no-restore --project ./Org.Grush.Lib.RecordCollections
+          dotnet build -c Release --no-restore --project ./Org.Grush.Lib.RecordCollections.Newtonsoft
+      - name: Tests
+        run: dotnet test --no-restore --project ./Org.Grush.Lib.RecordCollections.Tests
+      - name: AOT Tests
+        run: |
+          dotnet publish ./Org.Grush.Lib.RecordCollections.AotTests --no-restore --use-current-runtime --self-contained --output ./dist/aot-tests
+          ./dist/aot-tests/Org.Grush.Lib.RecordCollections.AotTests
+
+#  publish:
+#    needs: [ create-release ]
+#    runs-on: ubuntu-latest
+#    strategy:
+#      matrix:
+#        include:
+#          - folder: Org.Grush.NasFileCopy.ServerSide
+#            project: Org.Grush.NasFileCopy.ServerSide
+#            target: linux-x64
+#          - folder: Org.Grush.NasFileCopy.ClientSide/Org.Grush.NasFileCopy.ClientSide.Cli
+#            project: Org.Grush.NasFileCopy.ClientSide.Cli
+#            target: win-x64
+#            exeExt: .exe
+#    env:
+#      EXE_PATH: ${{ matrix.folder }}/bin/Release/net8.0/${{ matrix.target }}/publish/${{ matrix.project }}${{ matrix.exeExt }}
+#      ZIP_PATH: ${{ matrix.folder }}/bin/Release/net8.0/${{ matrix.target }}/publish/${{ matrix.project }}_${{ matrix.target }}.zip
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: Setup .NET
+#        uses: actions/setup-dotnet@v3
+#        with:
+#          dotnet-version: 8.0.x
+#      - name: Restore dependencies
+#        run: dotnet restore
+#      - name: Publish ${{ matrix.target }}
+#        run: dotnet publish ${{ matrix.folder }}/${{ matrix.project }}.csproj --no-restore -c Release -r ${{ matrix.target }} --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true
+#
+#      - name: Create Zip File
+#        uses: papeloto/action-zip@v1
+#        with:
+#          files: ${{ env.EXE_PATH }}
+#          dest: ${{ env.ZIP_PATH }}
+#
+#      - name: Push to Release
+#        uses: csexton/release-asset-action@v2
+#        with:
+#          github-token: ${{ secrets.GITHUB_TOKEN }}
+#          file: ${{ env.ZIP_PATH }}
+#          release-url: ${{ needs.create-release.outputs.release_upload_url }}
