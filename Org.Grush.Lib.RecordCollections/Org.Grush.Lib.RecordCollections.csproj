@@ -5,12 +5,21 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>12</LangVersion>
+
+    <PackageId>Org.Grush.Lib.RecordCollections</PackageId>
+    <Version>0.0.0-local</Version>
+    <Authors>Samuel K. Grush</Authors>
+    <Company>Grush.org</Company>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+    <!--    <PublishAot Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">true</PublishAot>-->
+    <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">true</IsAotCompatible>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$(TargetFramework) == 'net8.0'">
-    <PublishAot>true</PublishAot>
-    <IsAotCompatible>true</IsAotCompatible>
-  </PropertyGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/"/>
+  </ItemGroup>
 
   <ItemGroup Condition="$(TargetFramework) == 'netstandard2.1'">
     <PackageReference Include="System.Collections.Immutable" Version="[8.0.0,10.0)"/>

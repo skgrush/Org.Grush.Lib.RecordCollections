@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentAssertions;
 using Newtonsoft.Json;
@@ -205,7 +206,10 @@ public class RecordCollectionShould
     {
       public Serializers()
       {
-        Add("System.Text.Json", obj => JsonSerializer.Serialize(obj));
+        Add("System.Text.Json", obj => JsonSerializer.Serialize(obj, new JsonSerializerOptions
+        {
+          Converters = { new RecordCollectionJsonConverterFactory() }
+        }));
         Add("Newtonsoft", obj => JsonConvert.SerializeObject(obj, new JsonSerializerSettings
         {
           Converters = { new RecordCollectionNewtonsoftJsonConverterFactory() }
@@ -269,7 +273,7 @@ public class RecordCollectionShould
       public RuntimeDeserializers()
       {
         Add("System.Text.Json", str => System.Text.Json.JsonSerializer.Deserialize<T>(str)!);
-        Add("Newtonsoft", str => JsonConvert.DeserializeObject<T>(str, new JsonSerializerSettings
+        Add("Newtonsoft", str => JsonConvert.DeserializeObject<T>(value: str, settings: new JsonSerializerSettings
         {
           Converters = { new RecordCollectionNewtonsoftJsonConverterFactory() }
         })!);

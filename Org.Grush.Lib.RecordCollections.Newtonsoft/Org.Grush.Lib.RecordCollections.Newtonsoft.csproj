@@ -1,18 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>netstandard2.1</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <LangVersion>12</LangVersion>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>12</LangVersion>
+    <IsPackable>true</IsPackable>
 
-    <ItemGroup>
-      <PackageReference Include="Newtonsoft.Json" Version="[13.0.1,)" />
-    </ItemGroup>
+    <PackageId>Org.Grush.Lib.RecordCollections.Newtonsoft</PackageId>
+    <Version>0.0.0-local</Version>
+    <Authors>Samuel K. Grush</Authors>
+    <Company>Grush.org</Company>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Org.Grush.Lib.RecordCollections\Org.Grush.Lib.RecordCollections.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/"/>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="[13.0.1,)"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Org.Grush.Lib.RecordCollections/Org.Grush.Lib.RecordCollections.csproj"/>
+  </ItemGroup>
 
 </Project>
