@@ -45,8 +45,8 @@ jobs:
         run: dotnet test --no-restore --project ./Org.Grush.Lib.RecordCollections.Tests
       - name: AOT Tests
         run: |
-          dotnet publish ./Org.Grush.Lib.RecordCollections.AotTests --no-restore --use-current-runtime --self-contained --output ./dist/aot-tests
-          ./dist/aot-tests/Org.Grush.Lib.RecordCollections.AotTests
+          dotnet publish ./Org.Grush.Lib.RecordCollections.AotTests --no-restore --use-current-runtime --self-contained --output ./dist/aot-tests /p:AotMsCodeCoverageInstrumentation=true
+          ./dist/aot-tests/Org.Grush.Lib.RecordCollections.AotTests --coverage
 
 #  publish:
 #    needs: [ create-release ]
