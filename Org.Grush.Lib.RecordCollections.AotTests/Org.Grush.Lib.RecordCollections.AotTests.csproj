@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Org.Grush.Lib.RecordCollections\Org.Grush.Lib.RecordCollections.csproj" />
+    <ProjectReference Include="../Org.Grush.Lib.RecordCollections/Org.Grush.Lib.RecordCollections.csproj" />
   </ItemGroup>
 
 </Project>

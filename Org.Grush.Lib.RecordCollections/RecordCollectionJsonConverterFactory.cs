@@ -1,12 +1,12 @@
-#if NET8_0_OR_GREATER
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Org.Grush.Lib.RecordCollections;
 
-[RequiresDynamicCode("Dynamically references generic types that may not be available at runtime.")]
+#if NET8_0_OR_GREATER
+[System.Diagnostics.CodeAnalysis.RequiresDynamicCode("Dynamically references generic types that may not be available at runtime.")]
+#endif
 public class RecordCollectionJsonConverterFactory : JsonConverterFactory
 {
   public override bool CanConvert(Type typeToConvert)
@@ -27,4 +27,3 @@ public class RecordCollectionJsonConverterFactory : JsonConverterFactory
       culture: null) as JsonConverter;
   }
 }
-#endif

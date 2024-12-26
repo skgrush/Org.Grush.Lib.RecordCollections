@@ -1,4 +1,3 @@
-#if NET8_0_OR_GREATER
 using System.Collections.Immutable;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -24,4 +23,3 @@ public class RecordCollectionJsonConverter<T> : JsonConverter<RecordCollection<T
     writer.WriteRawValue(JsonSerializer.Serialize((ImmutableList<T>)value, options));
   }
 }
-#endif
