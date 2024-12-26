@@ -40,18 +40,21 @@ jobs:
           dotnet-version: 9
       - name: Restore solution dependencies
         run: dotnet restore
-      - name: Build libraries
-        run: |
-          dotnet build ./Org.Grush.Lib.RecordCollections            -f net8.0 -c Release --no-restore --output ./dist/lib/net8
-          # build newtonsoft lib and core lib
-          dotnet build ./Org.Grush.Lib.RecordCollections.Newtonsoft           -c Release --no-restore --output ./dist/lib/nets
+#      - name: Build libraries
+#        run: |
+#          dotnet build ./Org.Grush.Lib.RecordCollections            -f net8.0 -c Release --no-restore --output ./dist/lib/net8
+#          # build newtonsoft lib and core lib
+#          dotnet build ./Org.Grush.Lib.RecordCollections.Newtonsoft           -c Release --no-restore --output ./dist/lib/nets
       - name: Tests
         run: dotnet test --no-restore --project ./Org.Grush.Lib.RecordCollections.Tests
       - name: AOT Tests
         run: |
           dotnet publish ./Org.Grush.Lib.RecordCollections.AotTests --no-restore --use-current-runtime --self-contained --output ./dist/aot-tests /p:AotMsCodeCoverageInstrumentation=true
           ./dist/aot-tests/Org.Grush.Lib.RecordCollections.AotTests --coverage
-
+      - name: Pack
+        run: |
+          dotnet pack ./Org.Grush.Lib.RecordCollections            --no-restore --output ./dist/lib
+          dotnet pack ./Org.Grush.Lib.RecordCollections.Newtonsoft --no-restore --output ./dist/lib
 #  publish:
 #    needs: [ create-release ]
 #    runs-on: ubuntu-latest
