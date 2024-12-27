@@ -10,20 +10,18 @@ namespace Org.Grush.Lib.RecordCollections;
 #endif
 public class RecordCollectionJsonConverter<T> : JsonConverter<RecordCollection<T>>
 {
-  public override RecordCollection<T>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+  public override RecordCollection<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
   {
-    var jsonDeserialized = JsonSerializer.Deserialize<ImmutableList<T>>(
+    var jsonDeserialized = JsonSerializer.Deserialize<ImmutableArray<T>>(
       reader: ref reader,
       options
     );
 
-    return jsonDeserialized is null
-      ? null
-      : (RecordCollection<T>)jsonDeserialized;
+    return jsonDeserialized;
   }
 
   public override void Write(Utf8JsonWriter writer, RecordCollection<T> value, JsonSerializerOptions options)
   {
-    writer.WriteRawValue(JsonSerializer.Serialize((ImmutableList<T>)value, options));
+    writer.WriteRawValue(JsonSerializer.Serialize((ImmutableArray<T>)value, options));
   }
 }

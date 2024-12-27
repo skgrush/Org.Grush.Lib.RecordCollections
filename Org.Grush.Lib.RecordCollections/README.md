@@ -96,7 +96,7 @@ record Datum(string Name, string? Alias);
 
 [JsonSourceGenerationOptions(WriteIndented = true, Converters = [typeof(RecordCollectionJsonConverter<Datum>)])]
 [JsonSerializable(typeof(RecordCollection<Datum>))]
-[JsonSerializable(typeof(ImmutableList<Datum>))]
+[JsonSerializable(typeof(ImmutableArray<Datum>))]
 [JsonSerializable(typeof(Datum))]
 internal partial class RecordCollectionOfDataContext : JsonSerializerContext;
 ```

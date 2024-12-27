@@ -22,42 +22,14 @@ public class RecordCollectionShould
     [Fact]
     public void ForEmpty()
     {
-      // Assemble
-      var classicEmpty = RecordCollection<double>.Empty;
-
       // Act
       var coll = RecordCollection.Create<double>();
 
       // Assert
       coll
-        .Should()
-        .BeSameAs(classicEmpty);
-
-      coll
         .IsEmpty
         .Should()
         .BeTrue();
-    }
-
-    [Fact]
-    public void WithoutCreatingNewImmutableListFromImmutableList()
-    {
-      // assemble
-      var oldList = ImmutableList.Create([1, 2, 3]);
-
-      // act
-      var newRecordCollection = (RecordCollection<int>)oldList;
-
-      var newList = (ImmutableList<int>)newRecordCollection;
-
-      var newList2 = (ImmutableList<int>)RecordCollection.CreateRange(newList);
-
-      // assert
-      newList
-        .Should()
-        .BeSameAs(oldList)
-        .And
-        .BeSameAs(newList2);
     }
 
     [Fact]
@@ -328,5 +300,5 @@ public class RecordCollectionShould
 
 [JsonSourceGenerationOptions(WriteIndented = true, Converters = [typeof(RecordCollectionJsonConverter<string>)])]
 [JsonSerializable(typeof(RecordCollection<string>))]
-[JsonSerializable(typeof(ImmutableList<string>))]
+[JsonSerializable(typeof(ImmutableArray<string>))]
 internal partial class RecordCollectionOfStringContext : JsonSerializerContext;
