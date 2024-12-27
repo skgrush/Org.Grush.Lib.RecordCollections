@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -23,21 +24,22 @@ public record DataRecordCollection<T>(
 [TestClass]
 public class AotSerializationExperiments
 {
+  [StringSyntax("json")]
   private const string Raw =
     """
     {
-      "Underlying": ["a", "b", "c"]
+      "Underlying": [
+        "a",
+        "b",
+        "c"
+      ]
     }
     """;
 
+  [StringSyntax("json")]
   private const string NameStructRaw =
     """
-    {
-      "Underlying": [
-        { "Name": "Sam" },
-        { "Name": "Echo" }
-      ]
-    }
+    {"Underlying":[{"Name":"Sam"},{"Name":"Echo"}]}
     """;
 
   [TestMethod]
@@ -46,6 +48,10 @@ public class AotSerializationExperiments
     var deserialized = JsonSerializer.Deserialize(Raw, StringDataListContext.Default.DataListString);
 
     Asserter(deserialized);
+
+    var reSerialized = JsonSerializer.Serialize(deserialized!, StringDataListContext.Default.DataListString);
+
+    Assert.AreEqual(Raw, reSerialized);
   }
 
 
@@ -55,6 +61,10 @@ public class AotSerializationExperiments
     var deserialized = JsonSerializer.Deserialize(NameStructRaw, NameStructDataListContext.Default.DataListNameStruct);
 
     NameStructAsserter(deserialized);
+
+    var reSerialized = JsonSerializer.Serialize(deserialized!, NameStructDataListContext.Default.DataListNameStruct);
+
+    Assert.AreEqual(NameStructRaw,reSerialized);
   }
 
   [TestMethod]
@@ -71,6 +81,10 @@ public class AotSerializationExperiments
     var deserialized = JsonSerializer.Deserialize(NameStructRaw, NameStructDataRecordCollectionContext.Default.DataRecordCollectionNameStruct);
 
     NameStructAsserter(deserialized);
+
+    var reSerialized = JsonSerializer.Serialize(deserialized!, NameStructDataRecordCollectionContext.Default.DataRecordCollectionNameStruct);
+
+    Assert.AreEqual(NameStructRaw,reSerialized);
   }
 
   private void Asserter(IData<string, IReadOnlyList<string>>? obj)
@@ -94,29 +108,23 @@ public class AotSerializationExperiments
   }
 }
 
-[JsonSourceGenerationOptions(Converters = [typeof(RecordCollectionJsonConverter<string>)])]
-// [JsonSerializable(typeof(string))]
+[JsonSourceGenerationOptions(WriteIndented = true, Converters = [typeof(RecordCollectionJsonConverter<string>)])]
 [JsonSerializable(typeof(DataRecordCollection<string>))]
 [JsonSerializable(typeof(ImmutableList<string>))]
 internal partial class StringDataRecordCollectionContext : JsonSerializerContext;
 
 [JsonSourceGenerationOptions(Converters = [typeof(RecordCollectionJsonConverter<NameStruct>)])]
-// [JsonSerializable(typeof(NameStruct))]
 [JsonSerializable(typeof(DataRecordCollection<NameStruct>))]
 [JsonSerializable(typeof(ImmutableList<NameStruct>))]
 internal partial class NameStructDataRecordCollectionContext : JsonSerializerContext;
 
 
 
-[JsonSourceGenerationOptions]
-// [JsonSerializable(typeof(string))]
+[JsonSourceGenerationOptions(WriteIndented = true)]
 [JsonSerializable(typeof(DataList<string>))]
-//[JsonSerializable(typeof(List<string>))]
 internal partial class StringDataListContext : JsonSerializerContext;
 
 
-[JsonSourceGenerationOptions]
-// [JsonSerializable(typeof(string))]
+[JsonSourceGenerationOptions()]
 [JsonSerializable(typeof(DataList<NameStruct>))]
-//[JsonSerializable(typeof(List<string>))]
 internal partial class NameStructDataListContext : JsonSerializerContext;

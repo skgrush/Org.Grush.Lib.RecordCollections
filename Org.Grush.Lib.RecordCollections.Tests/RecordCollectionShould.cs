@@ -1,10 +1,12 @@
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentAssertions;
 using Newtonsoft.Json;
 using Org.Grush.Lib.RecordCollections.Newtonsoft;
 using JsonSerializer = System.Text.Json.JsonSerializer;
+// ReSharper disable NotAccessedPositionalProperty.Global
 
 namespace Org.Grush.Lib.RecordCollections.Tests;
 
@@ -12,10 +14,52 @@ using TestRecordOfInts = TestRecord<int, int>;
 using TestRecordOfCollections = TestRecord<RecordCollection<int>, RecordCollection<int>>;
 public record TestRecord<TA, TB>(TA A, TB B);
 
+[SuppressMessage("Usage", "xUnit1026:Theory methods should use all of their parameters")]
 public class RecordCollectionShould
 {
   public class BeInitializable
   {
+    [Fact]
+    public void ForEmpty()
+    {
+      // Assemble
+      var classicEmpty = RecordCollection<double>.Empty;
+
+      // Act
+      var coll = RecordCollection.Create<double>();
+
+      // Assert
+      coll
+        .Should()
+        .BeSameAs(classicEmpty);
+
+      coll
+        .IsEmpty
+        .Should()
+        .BeTrue();
+    }
+
+    [Fact]
+    public void WithoutCreatingNewImmutableListFromImmutableList()
+    {
+      // assemble
+      var oldList = ImmutableList.Create([1, 2, 3]);
+
+      // act
+      var newRecordCollection = (RecordCollection<int>)oldList;
+
+      var newList = (ImmutableList<int>)newRecordCollection;
+
+      var newList2 = (ImmutableList<int>)RecordCollection.CreateRange(newList);
+
+      // assert
+      newList
+        .Should()
+        .BeSameAs(oldList)
+        .And
+        .BeSameAs(newList2);
+    }
+
     [Fact]
     public void UsingStaticCreateMethod()
     {
@@ -202,7 +246,7 @@ public class RecordCollectionShould
         );
     }
 
-    public class Serializers : TheoryData<string, Func<object, string>>
+    private class Serializers : TheoryData<string, Func<object, string>>
     {
       public Serializers()
       {
@@ -268,11 +312,11 @@ public class RecordCollectionShould
         .BeEquivalentTo(RecordCollection.Create(["a", "b", "c"]));
     }
 
-    public class RuntimeDeserializers<T> : TheoryData<string, Func<string, T>>
+    private class RuntimeDeserializers<T> : TheoryData<string, Func<string, T>>
     {
       public RuntimeDeserializers()
       {
-        Add("System.Text.Json", str => System.Text.Json.JsonSerializer.Deserialize<T>(str)!);
+        Add("System.Text.Json", str => JsonSerializer.Deserialize<T>(str)!);
         Add("Newtonsoft", str => JsonConvert.DeserializeObject<T>(value: str, settings: new JsonSerializerSettings
         {
           Converters = { new RecordCollectionNewtonsoftJsonConverterFactory() }

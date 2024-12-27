@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
 namespace Org.Grush.Lib.RecordCollections {
@@ -9,7 +10,12 @@ public static class RecordCollection
   public static RecordCollection<T> Create<T>() => RecordCollection<T>.Empty;
 
   public static RecordCollection<T> Create<T>(ReadOnlySpan<T> items)
-    => RecordCollection<T>.Empty.AddRange(items);
+  {
+    return RecordCollection<T>.Empty.AddRange(items);
+  }
+
+  // public static RecordCollection<T> Create<T>(IImmutableList<T> items)
+  //   => RecordCollection<T>.Empty.AddRange(items);
 
   public static RecordCollection<T> ToRecordCollection<T>(this IEnumerable<T> enumerable)
     => CreateRange(enumerable);
@@ -39,23 +45,22 @@ public sealed class RecordCollection<T> : IImmutableList<T>, IEquatable<IImmutab
   public static implicit operator RecordCollection<T>(ImmutableList<T> l) => new(list: l);
   public static explicit operator ImmutableList<T>(RecordCollection<T> r) => r._list;
 
-  public bool IsEmpty => _list.Count is 0;
+  public bool IsEmpty => _list.IsEmpty;
 
   internal RecordCollection<T> AddRange(ReadOnlySpan<T> items)
   {
-    if (items.IsEmpty)
-      return this;
-
     var immutableItems = ImmutableList.Create(items);
     if (IsEmpty)
-      return immutableItems;
+      return NewIfDifferent(immutableItems);
     return AddRange(immutableItems);
   }
 
   #region IImmutableList implementation overrides
 
-  public RecordCollection<T> Add(T value) => _list.Add(value);
+  /// <inheritdoc cref="IImmutableList{T}.Add"/>
+  public RecordCollection<T> Add(T value) => new(_list.Add(value));
 
+  /// <inheritdoc cref="IImmutableList{T}.AddRange"/>
   public RecordCollection<T> AddRange(IEnumerable<T> items)
   {
     if (
@@ -67,38 +72,48 @@ public sealed class RecordCollection<T> : IImmutableList<T>, IEquatable<IImmutab
     )
       return this;
 
-    return _list.AddRange(items);
+    return NewIfDifferent(_list.AddRange(items));
   }
 
+  /// <inheritdoc cref="IImmutableList{T}.Clear"/>
   public RecordCollection<T> Clear()
-    => _list.Clear();
+    => NewIfDifferent(_list.Clear());
 
+  /// <inheritdoc cref="IImmutableList{T}.Insert"/>
   public RecordCollection<T> Insert(int index, T element)
-    => _list.Insert(index, element);
+    => NewIfDifferent(_list.Insert(index, element));
 
+  /// <inheritdoc cref="IImmutableList{T}.InsertRange"/>
   public RecordCollection<T> InsertRange(int index, IEnumerable<T> items)
-    => _list.InsertRange(index, items);
+    => NewIfDifferent(_list.InsertRange(index, items));
 
+  /// <inheritdoc cref="IImmutableList{T}.Remove"/>
   public RecordCollection<T> Remove(T value, IEqualityComparer<T>? equalityComparer) =>
-    _list.Remove(value, equalityComparer);
+    NewIfDifferent(_list.Remove(value, equalityComparer));
 
+  /// <inheritdoc cref="IImmutableList{T}.RemoveAll"/>
   public RecordCollection<T> RemoveAll(Predicate<T> match)
-    => _list.RemoveAll(match);
+    => NewIfDifferent(_list.RemoveAll(match));
 
+  /// <inheritdoc cref="IImmutableList{T}.RemoveAt"/>
   public RecordCollection<T> RemoveAt(int index)
-    => _list.RemoveAt(index);
+    => NewIfDifferent(_list.RemoveAt(index));
 
+  /// <inheritdoc cref="IImmutableList{T}.RemoveRange(System.Collections.Generic.IEnumerable{T},System.Collections.Generic.IEqualityComparer{T}?)"/>
   public RecordCollection<T> RemoveRange(IEnumerable<T> items, IEqualityComparer<T>? equalityComparer) =>
-    _list.RemoveRange(items, equalityComparer);
+    NewIfDifferent(_list.RemoveRange(items, equalityComparer));
 
+  /// <inheritdoc cref="IImmutableList{T}.RemoveRange(int,int)"/>
   public RecordCollection<T> RemoveRange(int index, int count)
-    => _list.RemoveRange(index, count);
+    => NewIfDifferent(_list.RemoveRange(index, count));
 
+  /// <inheritdoc cref="IImmutableList{T}.Replace"/>
   public RecordCollection<T> Replace(T oldValue, T newValue, IEqualityComparer<T>? equalityComparer) =>
-    _list.Replace(oldValue, newValue, equalityComparer);
+    NewIfDifferent(_list.Replace(oldValue, newValue, equalityComparer));
 
+  /// <inheritdoc cref="IImmutableList{T}.SetItem"/>
   public RecordCollection<T> SetItem(int index, T value)
-    => _list.SetItem(index, value);
+    => NewIfDifferent(_list.SetItem(index, value));
 
   #endregion IImmutableList implementation overrides
 
@@ -158,6 +173,7 @@ public sealed class RecordCollection<T> : IImmutableList<T>, IEquatable<IImmutab
   public override bool Equals(object? obj)
     => Equals(obj as IImmutableList<T>);
 
+  /// <summary>Compares sequence-equality with any other <see cref="IImmutableList{T}"/>.</summary>
   public bool Equals(IImmutableList<T>? other)
     => other is not null && this.SequenceEqual(other);
 
@@ -178,5 +194,14 @@ public sealed class RecordCollection<T> : IImmutableList<T>, IEquatable<IImmutab
     // }
   }
   #endregion equality
+
+  private RecordCollection<T> NewIfDifferent(ImmutableList<T> other)
+  {
+    if (ReferenceEquals(other, _list))
+      return this;
+    if (other.Count is 0)
+      return Empty;
+    return new(other);
+  }
 }
 }

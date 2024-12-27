@@ -6,7 +6,7 @@ namespace Org.Grush.Lib.RecordCollections.Newtonsoft;
 
 public class RecordCollectionNewtonsoftJsonConverterFactory : JsonConverter
 {
-  private static readonly ConcurrentDictionary<string, JsonConverter> _converterCache = new();
+  private static readonly ConcurrentDictionary<string, JsonConverter> ConverterCache = new();
 
   public override bool CanWrite => false;
 
@@ -18,7 +18,7 @@ public class RecordCollectionNewtonsoftJsonConverterFactory : JsonConverter
 
   public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
   {
-    var converter = _converterCache.GetOrAdd(
+    var converter = ConverterCache.GetOrAdd(
       key: objectType.FullName,
       valueFactory: static (_, capturedObjectType) =>
       {
