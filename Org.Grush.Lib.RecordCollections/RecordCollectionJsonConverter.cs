@@ -15,7 +15,7 @@ public class RecordCollectionJsonConverter<T> : JsonConverter<RecordCollection<T
 
     return jsonDeserialized is null
       ? null
-      : new RecordCollection<T>(jsonDeserialized);
+      : RecordCollection.CreateRange(jsonDeserialized);
   }
 
   public override void Write(Utf8JsonWriter writer, RecordCollection<T> value, JsonSerializerOptions options)

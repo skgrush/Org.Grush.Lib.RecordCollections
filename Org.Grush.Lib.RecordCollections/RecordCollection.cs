@@ -2,8 +2,8 @@
 using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
-namespace Org.Grush.Lib.RecordCollections
-{
+namespace Org.Grush.Lib.RecordCollections {
+
   public static class RecordCollection
   {
     public static RecordCollection<T> Create<T>() => RecordCollection<T>.Empty;
@@ -29,12 +29,14 @@ namespace Org.Grush.Lib.RecordCollections
   [JsonConverter(typeof(RecordCollectionJsonConverterFactory))]
   public sealed class RecordCollection<T> : IImmutableList<T>, IEquatable<IImmutableList<T>>
   {
-    public static readonly RecordCollection<T> Empty = new([]);
+    public static readonly RecordCollection<T> Empty = ImmutableList<T>.Empty;
 
     private readonly ImmutableList<T> _list;
 
-    internal RecordCollection(ImmutableList<T> list) => _list = list;
+    private RecordCollection(ImmutableList<T> list) => _list = list;
 
+    // we only allow conversion to/from ImmutableList<T> because it's sealed and immutable
+    public static implicit operator RecordCollection<T>(ImmutableList<T> l) => new(list: l);
     public static explicit operator ImmutableList<T>(RecordCollection<T> r) => r._list;
 
     public bool IsEmpty => _list.Count is 0;
@@ -46,50 +48,57 @@ namespace Org.Grush.Lib.RecordCollections
 
       var immutableItems = ImmutableList.Create(items);
       if (IsEmpty)
-        return new RecordCollection<T>(immutableItems);
+        return immutableItems;
       return AddRange(immutableItems);
     }
 
     #region IImmutableList implementation overrides
 
-    public RecordCollection<T> Add(T value) => new(_list.Add(value));
+    public RecordCollection<T> Add(T value) => _list.Add(value);
 
     public RecordCollection<T> AddRange(IEnumerable<T> items)
     {
-      if (items is ICollection<T> { Count: 0 })
+      if (
+#if NET8_0_OR_GREATER
+        items.TryGetNonEnumeratedCount(out int count) && count is 0
+#else
+        items is ICollection<T> { Count: 0 }
+#endif
+      )
         return this;
-      return new RecordCollection<T>(_list.AddRange(items));
+
+      return _list.AddRange(items);
     }
 
     public RecordCollection<T> Clear()
-      => new(_list.Clear());
+      => _list.Clear();
 
     public RecordCollection<T> Insert(int index, T element)
-      => new(_list.Insert(index, element));
+      => _list.Insert(index, element);
 
     public RecordCollection<T> InsertRange(int index, IEnumerable<T> items)
-      => new(_list.InsertRange(index, items));
+      => _list.InsertRange(index, items);
 
     public RecordCollection<T> Remove(T value, IEqualityComparer<T>? equalityComparer) =>
-      new(_list.Remove(value, equalityComparer));
+      _list.Remove(value, equalityComparer);
 
     public RecordCollection<T> RemoveAll(Predicate<T> match)
-      => new(_list.RemoveAll(match));
+      => _list.RemoveAll(match);
 
     public RecordCollection<T> RemoveAt(int index)
-      => new(_list.RemoveAt(index));
+      => _list.RemoveAt(index);
 
     public RecordCollection<T> RemoveRange(IEnumerable<T> items, IEqualityComparer<T>? equalityComparer) =>
-      new(_list.RemoveRange(items, equalityComparer));
+      _list.RemoveRange(items, equalityComparer);
 
     public RecordCollection<T> RemoveRange(int index, int count)
-      => new(_list.RemoveRange(index, count));
+      => _list.RemoveRange(index, count);
 
     public RecordCollection<T> Replace(T oldValue, T newValue, IEqualityComparer<T>? equalityComparer) =>
-      new(_list.Replace(oldValue, newValue, equalityComparer));
+      _list.Replace(oldValue, newValue, equalityComparer);
 
     public RecordCollection<T> SetItem(int index, T value)
-      => new(_list.SetItem(index, value));
+      => _list.SetItem(index, value);
 
     #endregion IImmutableList implementation overrides
 
