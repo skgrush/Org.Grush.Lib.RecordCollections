@@ -20,6 +20,6 @@ public class RecordCollectionJsonConverter<T> : JsonConverter<RecordCollection<T
 
   public override void Write(Utf8JsonWriter writer, RecordCollection<T> value, JsonSerializerOptions options)
   {
-    writer.WriteRawValue(JsonSerializer.Serialize((ImmutableList<T>)value, options));
+    writer.WriteRawValue(JsonSerializer.Serialize(value._DangerouslyGetInternalArray(), options));
   }
 }
