@@ -7,15 +7,14 @@ namespace Org.Grush.Lib.RecordCollections {
 
 public static class RecordCollection
 {
-  public static RecordCollection<T> Create<T>() => RecordCollection<T>.Empty;
+  public static RecordCollection<T> Create<T>()
+    => RecordCollection<T>.Empty;
 
   public static RecordCollection<T> Create<T>(ReadOnlySpan<T> items)
-  {
-    return RecordCollection<T>.Empty.AddRange(items);
-  }
+    => ImmutableArray.Create(items);
 
-  // public static RecordCollection<T> Create<T>(IImmutableList<T> items)
-  //   => RecordCollection<T>.Empty.AddRange(items);
+  public static RecordCollection<T> ToRecordCollection<T>(this ReadOnlySpan<T> items)
+    => Create(items);
 
   public static RecordCollection<T> ToRecordCollection<T>(this IEnumerable<T> enumerable)
     => CreateRange(enumerable);
@@ -58,33 +57,14 @@ public readonly struct RecordCollection<T> :
   public bool IsEmpty => _data.IsEmpty;
   public bool IsReadOnly => true;
 
-  internal RecordCollection<T> AddRange(ReadOnlySpan<T> items)
-  {
-    var immutableItems = ImmutableArray.Create(items);
-    if (IsEmpty)
-      return immutableItems;
-    return AddRange(immutableItems);
-  }
-
   #region IImmutableList implementation overrides
 
   /// <inheritdoc cref="IImmutableList{T}.Add"/>
-  public RecordCollection<T> Add(T value) => new(_data.Add(value));
+  public RecordCollection<T> Add(T value) => _data.Add(value);
 
   /// <inheritdoc cref="IImmutableList{T}.AddRange"/>
   public RecordCollection<T> AddRange(IEnumerable<T> items)
-  {
-    if (
-#if NET8_0_OR_GREATER
-      items.TryGetNonEnumeratedCount(out int count) && count is 0
-#else
-      items is ICollection<T> { Count: 0 }
-#endif
-    )
-      return this;
-
-    return _data.AddRange(items);
-  }
+    => _data.AddRange(items);
 
   /// <inheritdoc cref="IImmutableList{T}.Clear"/>
   public RecordCollection<T> Clear()
