@@ -7,24 +7,33 @@ namespace Org.Grush.Lib.RecordCollections {
 
 public static class RecordCollection
 {
+  /// <summary>Alternative to <code>RecordCollection&lt;T&gt;.Empty</code></summary>
   public static RecordCollection<T> Create<T>()
     => RecordCollection<T>.Empty;
 
+  /// <summary>
+  /// Public <see cref="RecordCollection{T}"/> initializer from <see cref="ReadOnlySpan{T}"/>,
+  /// used for collection expression syntax.
+  /// </summary>
   public static RecordCollection<T> Create<T>(ReadOnlySpan<T> items)
     => ImmutableArray.Create(items);
 
+  /// <inheritdoc cref="ToRecordCollection{T}(System.Collections.Generic.IEnumerable{T})"/>
   public static RecordCollection<T> ToRecordCollection<T>(this ReadOnlySpan<T> items)
     => Create(items);
 
+  /// <summary>Produces a record collection from the specified elements, as a LINQ-like extensions.</summary>
   public static RecordCollection<T> ToRecordCollection<T>(this IEnumerable<T> enumerable)
     => CreateRange(enumerable);
 
+
+  /// <summary>Creates a new <see cref="RecordCollection{T}"/> from the specified elements.</summary>
   public static RecordCollection<T> CreateRange<T>(IEnumerable<T> enumerable)
   {
     if (enumerable is RecordCollection<T> c)
       return c;
 
-    return RecordCollection<T>.Empty.AddRange(enumerable);
+    return ImmutableArray.CreateRange(enumerable);
   }
 }
 
@@ -33,7 +42,7 @@ public static class RecordCollection
 /// </summary>
 /// <typeparam name="T">The element type.</typeparam>
 #if NET8_0_OR_GREATER
-[System.Runtime.CompilerServices.CollectionBuilder(typeof (RecordCollection), "Create")]
+[System.Runtime.CompilerServices.CollectionBuilder(typeof(RecordCollection), nameof(RecordCollection.Create))]
 #endif
 [JsonConverter(typeof(RecordCollectionJsonConverterFactory))]
 public readonly struct RecordCollection<T> :
@@ -41,6 +50,7 @@ public readonly struct RecordCollection<T> :
   IImmutableList<T>,
   IEquatable<RecordCollection<T>>
 {
+  /// <summary>Static empty instance of a <typeparamref name="T"/> record collection.</summary>
   public static readonly RecordCollection<T> Empty = ImmutableArray<T>.Empty;
 
   private readonly ImmutableArray<T> _data;
@@ -54,8 +64,19 @@ public readonly struct RecordCollection<T> :
   public static bool operator==(RecordCollection<T>? a, RecordCollection<T>? b) => Equals(a, b);
   public static bool operator!=(RecordCollection<T>? a, RecordCollection<T>? b) => !Equals(a, b);
 
+  /// <summary>true if-and-only-if the collection is empty.</summary>
   public bool IsEmpty => _data.IsEmpty;
+  /// <summary>Always true.</summary>
   public bool IsReadOnly => true;
+  /// <summary>Number of elements in the collection.</summary>
+  public int Count => _data.Length;
+
+  public T this[int index]
+  {
+    get => _data[index];
+    set => throw new NotSupportedException(ExceptionMessage.Immutable);
+  }
+  public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)_data).GetEnumerator();
 
   #region IImmutableList implementation overrides
 
@@ -106,76 +127,44 @@ public readonly struct RecordCollection<T> :
   public RecordCollection<T> SetItem(int index, T value)
     => _data.SetItem(index, value);
 
-  #endregion IImmutableList implementation overrides
-
-  #region IList implementation
-
-  void ICollection<T>.Add(T ele) => throw new NotSupportedException();
-  void ICollection<T>.Clear() => throw new NotSupportedException();
-  bool ICollection<T>.Remove(T item) => throw new NotSupportedException();
-  void IList<T>.Insert(int index, T item) => throw new NotSupportedException();
-  void IList<T>.RemoveAt(int index) => throw new NotSupportedException();
-  int IList<T>.IndexOf(T item) => throw new NotSupportedException();
-
-  public bool Contains(T item) => _data.Contains(item);
-  public void CopyTo(T[] array, int arrayIndex) => _data.CopyTo(array, arrayIndex);
-
-  #endregion
-
-  #region IImmutableList implementation
-  public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)_data).GetEnumerator();
-
-  IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-  public int Count => _data.Length;
-
-  public T this[int index]
-  {
-    get => _data[index];
-    set => throw new NotSupportedException();
-  }
-
-  IImmutableList<T> IImmutableList<T>.Add(T value)
-    => Add(value);
-
-  IImmutableList<T> IImmutableList<T>.AddRange(IEnumerable<T> items)
-    => AddRange(items);
-
-  IImmutableList<T> IImmutableList<T>.Clear()
-    => Clear();
-
+  /// <inheritdoc cref="IImmutableList{T}.IndexOf"/>
   public int IndexOf(T item, int index, int count, IEqualityComparer<T>? equalityComparer)
     => _data.IndexOf(item, index, count, equalityComparer);
 
-  IImmutableList<T> IImmutableList<T>.Insert(int index, T element)
-    => Insert(index, element);
-
-  IImmutableList<T> IImmutableList<T>.InsertRange(int index, IEnumerable<T> items)
-    => InsertRange(index, items);
-
+  /// <inheritdoc cref="IImmutableList{T}.LastIndexOf"/>
   public int LastIndexOf(T item, int index, int count, IEqualityComparer<T>? equalityComparer)
     => _data.LastIndexOf(item, index, count, equalityComparer);
 
-  IImmutableList<T> IImmutableList<T>.Remove(T value, IEqualityComparer<T>? equalityComparer)
-    => Remove(value, equalityComparer);
+  #endregion IImmutableList implementation overrides
 
-  IImmutableList<T> IImmutableList<T>.RemoveAll(Predicate<T> match)
-    => RemoveAll(match);
+  #region IList implementation
+  void ICollection<T>.Add(T ele) => throw new NotSupportedException(ExceptionMessage.Immutable);
+  void ICollection<T>.Clear() => throw new NotSupportedException(ExceptionMessage.Immutable);
+  bool ICollection<T>.Remove(T item) => throw new NotSupportedException(ExceptionMessage.Immutable);
+  void IList<T>.Insert(int index, T item) => throw new NotSupportedException(ExceptionMessage.Immutable);
+  void IList<T>.RemoveAt(int index) => throw new NotSupportedException(ExceptionMessage.Immutable);
+  /// <inheritdoc cref="IList{T}.IndexOf"/>
+  public int IndexOf(T item) => _data.IndexOf(item);
+  /// <inheritdoc cref="ICollection{T}.Contains"/>
+  public bool Contains(T item) => _data.Contains(item);
+  /// <inheritdoc cref="ImmutableArray{T}.CopyTo(T[],int)"/>
+  public void CopyTo(T[] array, int arrayIndex) => _data.CopyTo(array, arrayIndex);
+  #endregion IList implementation
 
-  IImmutableList<T> IImmutableList<T>.RemoveAt(int index)
-    => RemoveAt(index);
-
-  IImmutableList<T> IImmutableList<T>.RemoveRange(IEnumerable<T> items, IEqualityComparer<T>? equalityComparer)
-    => RemoveRange(items, equalityComparer);
-
-  IImmutableList<T> IImmutableList<T>.RemoveRange(int index, int count)
-    => RemoveRange(index, count);
-
-  IImmutableList<T> IImmutableList<T>.Replace(T oldValue, T newValue, IEqualityComparer<T>? equalityComparer)
-    => Replace(oldValue, newValue, equalityComparer);
-
-  IImmutableList<T> IImmutableList<T>.SetItem(int index, T value)
-    => SetItem(index, value);
+  #region IImmutableList implementation
+  IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+  IImmutableList<T> IImmutableList<T>.Add(T value) => Add(value);
+  IImmutableList<T> IImmutableList<T>.AddRange(IEnumerable<T> items) => AddRange(items);
+  IImmutableList<T> IImmutableList<T>.Clear() => Clear();
+  IImmutableList<T> IImmutableList<T>.Insert(int index, T element) => Insert(index, element);
+  IImmutableList<T> IImmutableList<T>.InsertRange(int index, IEnumerable<T> items) => InsertRange(index, items);
+  IImmutableList<T> IImmutableList<T>.Remove(T value, IEqualityComparer<T>? equalityComparer) => Remove(value, equalityComparer);
+  IImmutableList<T> IImmutableList<T>.RemoveAll(Predicate<T> match) => RemoveAll(match);
+  IImmutableList<T> IImmutableList<T>.RemoveAt(int index) => RemoveAt(index);
+  IImmutableList<T> IImmutableList<T>.RemoveRange(IEnumerable<T> items, IEqualityComparer<T>? equalityComparer) => RemoveRange(items, equalityComparer);
+  IImmutableList<T> IImmutableList<T>.RemoveRange(int index, int count) => RemoveRange(index, count);
+  IImmutableList<T> IImmutableList<T>.Replace(T oldValue, T newValue, IEqualityComparer<T>? equalityComparer) => Replace(oldValue, newValue, equalityComparer);
+  IImmutableList<T> IImmutableList<T>.SetItem(int index, T value) => SetItem(index, value);
   #endregion IImmutableList implementation
 
   #region equality
@@ -186,20 +175,17 @@ public readonly struct RecordCollection<T> :
   public bool Equals(RecordCollection<T> other)
     => _data.SequenceEqual(other._data);
 
-  public static bool Equals(RecordCollection<T>? lhs, RecordCollection<T>? rhs)
-  {
-    return (lhs, rhs) switch
+  public static bool Equals(RecordCollection<T>? lhs, RecordCollection<T>? rhs) =>
+    (lhs, rhs) switch
     {
       (null, null) => true,
       (not null, not null) => lhs.Equals(rhs),
       _ => false,
     };
-  }
 
   /// <summary>
   /// Gets/caches the combined <see cref="HashCode"/> of each item in the sequence.
   /// </summary>
-  [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
   public override int GetHashCode()
   {
     var hash = new HashCode();
@@ -211,5 +197,11 @@ public readonly struct RecordCollection<T> :
     return hash.ToHashCode();
   }
   #endregion equality
+
+
+  private static class ExceptionMessage
+  {
+    public const string Immutable = nameof(RecordCollection) + " is immutable.";
+  }
 }
 }
