@@ -42,7 +42,7 @@ public readonly struct RecordCollection<T> :
   IImmutableList<T>,
   IEquatable<RecordCollection<T>>
 {
-  public static readonly RecordCollection<T> Empty = new(data: ImmutableArray<T>.Empty);
+  public static readonly RecordCollection<T> Empty = ImmutableArray<T>.Empty;
 
   private readonly ImmutableArray<T> _data;
 
@@ -51,8 +51,9 @@ public readonly struct RecordCollection<T> :
   // we only allow conversion to/from ImmutableArray<T> because it's sealed and immutable
   public static implicit operator RecordCollection<T>(ImmutableArray<T> data) => new(data: data);
   public static explicit operator ImmutableArray<T>(RecordCollection<T> r) => r._data;
-  public static bool operator==(RecordCollection<T> a, RecordCollection<T> b) => Equals(a, b);
-  public static bool operator!=(RecordCollection<T> a, RecordCollection<T> b) => !Equals(a, b);
+
+  public static bool operator==(RecordCollection<T>? a, RecordCollection<T>? b) => Equals(a, b);
+  public static bool operator!=(RecordCollection<T>? a, RecordCollection<T>? b) => !Equals(a, b);
 
   public bool IsEmpty => _data.IsEmpty;
   public bool IsReadOnly => true;
@@ -87,7 +88,7 @@ public readonly struct RecordCollection<T> :
 
   /// <inheritdoc cref="IImmutableList{T}.Clear"/>
   public RecordCollection<T> Clear()
-    => _data.Clear();
+    => Empty;
 
   /// <inheritdoc cref="IImmutableList{T}.Insert"/>
   public RecordCollection<T> Insert(int index, T element)
@@ -204,6 +205,16 @@ public readonly struct RecordCollection<T> :
   /// <summary>Compares sequence-equality with any other <see cref="IImmutableList{T}"/>.</summary>
   public bool Equals(RecordCollection<T> other)
     => _data.SequenceEqual(other._data);
+
+  public static bool Equals(RecordCollection<T>? lhs, RecordCollection<T>? rhs)
+  {
+    return (lhs, rhs) switch
+    {
+      (null, null) => true,
+      (not null, not null) => lhs.Equals(rhs),
+      _ => false,
+    };
+  }
 
   /// <summary>
   /// Gets/caches the combined <see cref="HashCode"/> of each item in the sequence.
