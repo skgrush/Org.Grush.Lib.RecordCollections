@@ -1,8 +1,10 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Newtonsoft.Json;
 using Org.Grush.Lib.RecordCollections.Newtonsoft;
 using JsonSerializer = System.Text.Json.JsonSerializer;
@@ -79,6 +81,101 @@ public class RecordCollectionShould
         .And
         .BeEquivalentTo(oldList);
     }
+
+    [Fact]
+    public void UsingCreateRange()
+    {
+      // Assemble
+      List<string> input = ["a", "b"];
+
+      // Act
+      var collection = RecordCollection.CreateRange(input);
+
+      collection
+        .Should()
+        .BeEquivalentTo(["a", "b"]);
+    }
+  }
+
+  public class BeImmutable
+  {
+    [Fact]
+    public void AndAlwaysReadOnly()
+    {
+      using var _ = new AssertionScope();
+
+      var collection = RecordCollection.Create([1, 2]);
+
+      collection
+        .IsReadOnly
+        .Should()
+        .BeTrue();
+
+      collection.GetType()
+        .GetMember(nameof(RecordCollection<object>.IsReadOnly))
+        .Should()
+        .SatisfyRespectively(
+          member => member
+            .As<PropertyInfo>()
+            .Should()
+            .NotBeWritable()
+        );
+    }
+
+    [Theory]
+    [ClassData(typeof(UnsupportedMethods))]
+    public void AndThrowForUnsupportedMethods(string name, Action action)
+    {
+      action
+        .Should()
+        .Throw<Exception>()
+        .And
+        .Should()
+        .Match((Exception e) =>
+          (e.InnerException ?? e) is NotSupportedException
+        );
+    }
+
+    private class UnsupportedMethods : TheoryData<string, Action>
+    {
+      public UnsupportedMethods()
+      {
+        RecordCollection<long> collection = [];
+
+        var functions = new MulticastDelegate[] {
+          ((ICollection<long>)collection).Add,
+          ((ICollection<long>)collection).Clear,
+          ((ICollection<long>)collection).Remove,
+          ((IList<long>)collection).Insert,
+          ((IList<long>)collection).RemoveAt,
+          ((IList<long>)collection).IndexOf,
+        };
+
+        foreach (var fn in functions)
+        {
+          Add(
+            fn.Method.Name,
+            GetDefaultCallOfMethod(collection, fn.Method)
+          );
+        }
+
+        Add("RecordCollection<T>[0] =", (() => collection[0] = 0));
+      }
+    }
+
+    private static Action GetDefaultCallOfMethod<T>(T instance, MethodInfo method)
+    {
+      var theParams = method.GetParameters().Select(p =>
+        p.ParameterType.IsValueType
+          ? Activator.CreateInstance(p.ParameterType)
+          : null
+      ).ToArray();
+
+      return () =>
+      {
+        method.Invoke(instance, BindingFlags.Public | BindingFlags.Instance, null, theParams, null);
+      };
+    }
   }
 
   public class BeEquatable
@@ -116,7 +213,7 @@ public class RecordCollectionShould
     [InlineData(false, true)]
     [InlineData(true, false)]
     [InlineData(true, true)]
-    public void WithNullValues(bool oneEmpty, bool reversed)
+    public void AndEqualWithNullValues(bool oneEmpty, bool reversed)
     {
       // Assemble
       RecordCollection<int>? collectionA = oneEmpty ? [] : [1, 2, 3];
@@ -125,13 +222,16 @@ public class RecordCollectionShould
       if (reversed)
         (collectionA, collectionB) = (collectionB, collectionA);
 
-      // Act
-      var areEqual = Equals(collectionA, collectionB);
+      // Act/Assert
+      using var _ = new AssertionScope();
 
-      // Assert
-      areEqual
+      (collectionA == collectionB)
         .Should()
         .BeFalse();
+
+      (collectionA != collectionB)
+        .Should()
+        .BeTrue();
     }
 
     [Fact]
