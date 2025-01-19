@@ -71,7 +71,7 @@ Serialization is implicitly supported by both System.Text.Json and Newtonsoft.
 ### System.Text.Json
 Reflection-based serialization **is supported implicitly**.
 
-For AOT-compatible serialization the `RecordCollectionJsonConverter<T>` is provided by the core package:
+For AOT-compatible serialization the `RecordCollectionStrictJsonConverter<T>` is provided by the core package:
 
 ```cs
 using System.Text.Json;
@@ -94,7 +94,7 @@ RecordCollection<Datum>? data = JsonSerializer.Deserialize(
 
 record Datum(string Name, string? Alias);
 
-[JsonSourceGenerationOptions(WriteIndented = true, Converters = [typeof(RecordCollectionJsonConverter<Datum>)])]
+[JsonSourceGenerationOptions(WriteIndented = true, Converters = [typeof(RecordCollectionStrictJsonConverter<Datum>)])]
 [JsonSerializable(typeof(RecordCollection<Datum>))]
 [JsonSerializable(typeof(ImmutableArray<Datum>))]
 [JsonSerializable(typeof(Datum))]

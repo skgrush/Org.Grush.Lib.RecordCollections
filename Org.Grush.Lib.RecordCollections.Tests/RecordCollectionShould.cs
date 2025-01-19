@@ -148,7 +148,6 @@ public class RecordCollectionShould
           ((ICollection<long>)collection).Remove,
           ((IList<long>)collection).Insert,
           ((IList<long>)collection).RemoveAt,
-          ((IList<long>)collection).IndexOf,
         };
 
         foreach (var fn in functions)
@@ -318,14 +317,36 @@ public class RecordCollectionShould
         );
     }
 
-    private class Serializers : TheoryData<string, Func<object, string>>
+    [Fact]
+    public void WithNonstandardSettings()
+    {
+      var result = JsonSerializer.Serialize(
+        [
+          "A",
+          "B",
+          "c",
+        ],
+        RecordCollectionOfStringNonStandardContext.Default.RecordCollectionString);
+
+      result.Should()
+        .Be("""
+            [
+              "A",
+              "B",
+              "c"
+            ]
+            """);
+    }
+
+    private class Serializers : TheoryData<string, Func<TestRecord<RecordCollection<int>, RecordCollection<string>>, string>>
     {
       public Serializers()
       {
-        Add("System.Text.Json", obj => JsonSerializer.Serialize(obj, new JsonSerializerOptions
+        Add("System.Text.Json dynamic", obj => JsonSerializer.Serialize(obj, new JsonSerializerOptions
         {
           Converters = { new RecordCollectionJsonConverterFactory() }
         }));
+        Add("System.Text.Json context", obj => JsonSerializer.Serialize(obj, TestRecordRecordCollectionIntStringTestContext.Default.TestRecordRecordCollectionInt32RecordCollectionString));
         Add("Newtonsoft", obj => JsonConvert.SerializeObject(obj, new JsonSerializerSettings
         {
           Converters = { new RecordCollectionNewtonsoftJsonConverterFactory() }
@@ -340,7 +361,7 @@ public class RecordCollectionShould
     [ClassData(typeof(RuntimeDeserializers<RecordCollection<string?>>))]
     public void AtRuntime_WithSingleLayer(string name, Func<string, RecordCollection<string?>> deserializer)
     {
-      var json =
+      const string json =
         """
         ["a", "b", null]
         """;
@@ -355,7 +376,7 @@ public class RecordCollectionShould
     public void AtRuntime_WithMultipleLayers(string name,
       Func<string, RecordCollection<TestRecord<RecordCollection<int>, RecordCollection<string>>>> deserializer)
     {
-      var json =
+      const string json =
         """
         [{"A":[1,2,3],"B":["1","2","3"]}]
         """;
@@ -371,7 +392,7 @@ public class RecordCollectionShould
     [Fact]
     public void WithSourceGeneratedDeserializer()
     {
-      var json =
+      const string json =
         """
         ["a", "b", "c"]
         """;
@@ -384,11 +405,34 @@ public class RecordCollectionShould
         .BeEquivalentTo(RecordCollection.Create(["a", "b", "c"]));
     }
 
+    [Fact]
+    public void WithSourceGeneratedDeserializer_WithNonStandardSettings()
+    {
+      const string json =
+        """
+        ["a",
+          // Just had to interject here
+          /*
+            comments in JSON are cool but problematic
+            */
+        "b", "c"
+        ,
+        ]
+        """;
+
+      JsonSerializer.Deserialize(
+          json: json,
+          jsonTypeInfo: RecordCollectionOfStringNonStandardContext.Default.RecordCollectionString
+        )
+        .Should()
+        .BeEquivalentTo(RecordCollection.Create(["a", "b", "c"]));
+    }
+
     private class RuntimeDeserializers<T> : TheoryData<string, Func<string, T>>
     {
       public RuntimeDeserializers()
       {
-        Add("System.Text.Json", str => JsonSerializer.Deserialize<T>(str)!);
+        Add("System.Text.Json dynamic", str => JsonSerializer.Deserialize<T>(str)!);
         Add("Newtonsoft", str => JsonConvert.DeserializeObject<T>(value: str, settings: new JsonSerializerSettings
         {
           Converters = { new RecordCollectionNewtonsoftJsonConverterFactory() }
@@ -398,7 +442,12 @@ public class RecordCollectionShould
   }
 }
 
-[JsonSourceGenerationOptions(WriteIndented = true, Converters = [typeof(RecordCollectionJsonConverter<string>)])]
+[JsonSourceGenerationOptions(Converters = [typeof(RecordCollectionStrictJsonConverter<string>)])]
 [JsonSerializable(typeof(RecordCollection<string>))]
-[JsonSerializable(typeof(ImmutableArray<string>))]
+[JsonSerializable(typeof(string))]
 internal partial class RecordCollectionOfStringContext : JsonSerializerContext;
+
+[JsonSourceGenerationOptions(WriteIndented = true, AllowTrailingCommas = true, ReadCommentHandling = JsonCommentHandling.Skip, Converters = [typeof(RecordCollectionStrictJsonConverter<string>)])]
+[JsonSerializable(typeof(RecordCollection<string>))]
+[JsonSerializable(typeof(string))]
+internal partial class RecordCollectionOfStringNonStandardContext : JsonSerializerContext;

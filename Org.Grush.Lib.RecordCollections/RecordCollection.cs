@@ -39,6 +39,8 @@ public static class RecordCollection
 
 /// <summary>
 /// Collection type with record compatibility (value equal, immutable, de/serializable).
+///
+/// Casting to and from <see cref="ImmutableArray{T}"/> is effectively free.
 /// </summary>
 /// <typeparam name="T">The element type.</typeparam>
 #if NET8_0_OR_GREATER

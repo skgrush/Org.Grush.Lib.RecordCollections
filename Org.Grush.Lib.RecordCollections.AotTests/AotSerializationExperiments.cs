@@ -79,12 +79,12 @@ public class AotSerializationExperiments
   }
 }
 
-[JsonSourceGenerationOptions(WriteIndented = true, Converters = [typeof(RecordCollectionJsonConverter<string>)])]
+[JsonSourceGenerationOptions(WriteIndented = true, Converters = [typeof(RecordCollectionStrictJsonConverter<string>)])]
 [JsonSerializable(typeof(DataRecordCollection<string>))]
 [JsonSerializable(typeof(ImmutableArray<string>))]
 internal partial class StringDataRecordCollectionContext : JsonSerializerContext;
 
-[JsonSourceGenerationOptions(Converters = [typeof(RecordCollectionJsonConverter<NameStruct>)])]
+[JsonSourceGenerationOptions(Converters = [typeof(RecordCollectionStrictJsonConverter<NameStruct>)])]
 [JsonSerializable(typeof(DataRecordCollection<NameStruct>))]
 [JsonSerializable(typeof(ImmutableArray<NameStruct>))]
 internal partial class NameStructDataRecordCollectionContext : JsonSerializerContext;

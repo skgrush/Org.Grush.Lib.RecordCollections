@@ -18,7 +18,7 @@ public class RecordCollectionJsonConverterFactory : JsonConverterFactory
     Type elementType = typeToConvert.GetGenericArguments()[0];
 
     return Activator.CreateInstance(
-      typeof(RecordCollectionJsonConverter<>).MakeGenericType([
+      typeof(RecordCollectionStrictJsonConverter<>).MakeGenericType([
         elementType
       ]),
       BindingFlags.Instance | BindingFlags.Public,
