@@ -14,12 +14,4 @@
     <ItemGroup>
       <ProjectReference Include="..\Org.Grush.Lib.RecordCollections\Org.Grush.Lib.RecordCollections.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="BenchmarkDotNet.Artifacts\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="BenchmarkDotNet.Artifacts\Org.Grush.Lib.RecordCollections.Benchmark.Tests.CollectionExpressionInit-20250120-091855.log" />
-    </ItemGroup>
 </Project>

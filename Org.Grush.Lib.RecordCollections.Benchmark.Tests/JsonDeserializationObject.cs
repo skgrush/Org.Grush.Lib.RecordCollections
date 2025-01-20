@@ -20,6 +20,7 @@ public class JsonDeserializationObject
 
   private string _numberData; // MyRecord<int, double, string>
 
+  [GlobalSetup]
   public void GlobalSetup()
   {
     Random random = new();
