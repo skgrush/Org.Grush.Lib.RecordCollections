@@ -22,10 +22,9 @@ public class JsonDeserialization_NoContext
   [Params(10, 500)]
   public int Length { get; set; }
 
-  private string _listOfDtoOfList = null!;
+  private readonly string _listOfDtoOfList;
 
-  [GlobalSetup]
-  public void Setup()
+  public JsonDeserialization_NoContext()
   {
     Random random = new();
 

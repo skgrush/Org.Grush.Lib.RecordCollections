@@ -12,10 +12,9 @@ public class JsonDeserializationInt
   [Params(10, 1000, 10_000)]
   public int Length { get; set; }
 
-  private string _intData;
+  private readonly string _intData;
 
-  [GlobalSetup]
-  public void Setup()
+  public JsonDeserializationInt()
   {
     Random random = new();
 

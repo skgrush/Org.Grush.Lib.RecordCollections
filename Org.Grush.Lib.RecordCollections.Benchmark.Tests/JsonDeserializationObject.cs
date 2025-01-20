@@ -18,10 +18,9 @@ public class JsonDeserializationObject
   [Params(10, 1000, 10_000)]
   public int Length { get; set; }
 
-  private string _numberData = null!; // MyRecord<int, double, string>
+  private readonly string _numberData; // MyRecord<int, double, string>
 
-  [GlobalSetup]
-  public void Setup()
+  public JsonDeserializationObject()
   {
     Random random = new();
 
