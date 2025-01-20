@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Grush.Lib.RecordCollect
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Grush.Lib.RecordCollections.AotTests", "Org.Grush.Lib.RecordCollections.AotTests\Org.Grush.Lib.RecordCollections.AotTests.csproj", "{04F21E9B-9334-4037-B2BB-F4546D67078F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Grush.Lib.RecordCollections.Benchmark.Tests", "Org.Grush.Lib.RecordCollections.Benchmark.Tests\Org.Grush.Lib.RecordCollections.Benchmark.Tests.csproj", "{0AD323AC-DF74-4943-B26B-C20DA9103C5C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{04F21E9B-9334-4037-B2BB-F4546D67078F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{04F21E9B-9334-4037-B2BB-F4546D67078F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{04F21E9B-9334-4037-B2BB-F4546D67078F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AD323AC-DF74-4943-B26B-C20DA9103C5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AD323AC-DF74-4943-B26B-C20DA9103C5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AD323AC-DF74-4943-B26B-C20DA9103C5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AD323AC-DF74-4943-B26B-C20DA9103C5C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
