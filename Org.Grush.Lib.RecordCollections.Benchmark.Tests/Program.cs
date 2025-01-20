@@ -21,12 +21,15 @@ if (args.Contains(noOutputArg))
 
 var timestamp = DateTimeOffset.Now;
 
-var file = new FileInfo("../../../Benchmarks.md");
+var benchmarksDir = Path.GetFullPath(Path.Join(AppContext.BaseDirectory, "../../../Benchmarks.md"));
+var file = new FileInfo(benchmarksDir);
+Console.WriteLine($"Will write to: {file.FullName}");
 if (file.Exists)
   file.Delete();
 await using var writer = new StreamWriter(file.FullName);
 
-writer.Write("# Benchmarks ({0:o})\n", timestamp);
+writer.Write("#Benchmarks\n");
+writer.Write("> ({0:o})\n", timestamp);
 writer.Flush();
 
 
@@ -46,6 +49,6 @@ foreach (Summary summary in summaries)
 
 }
 
-Console.WriteLine($"Wrote compound Markdown to {Path.GetFullPath(file.FullName)}");
+Console.WriteLine($"Wrote compound Markdown to {file.FullName}");
 
 return 0;

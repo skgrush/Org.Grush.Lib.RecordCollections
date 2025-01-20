@@ -16,17 +16,17 @@ public record MyRecord<T0, T1, T2>(T0 A, T1 B, T2 C);
 public class JsonDeserializationObject
 {
   [Params(10, 1000, 10_000)]
-  public int Length { get; set; }
+  public int N { get; set; }
 
-  private readonly string _numberData; // MyRecord<int, double, string>
+  private string _numberData; // MyRecord<int, double, string>
 
-  public JsonDeserializationObject()
+  public void GlobalSetup()
   {
     Random random = new();
 
     _numberData =
       '[' +
-      string.Join(',', Enumerable.Range(0, Length).Select(_ =>
+      string.Join(',', Enumerable.Range(0, N).Select(_ =>
       {
         var n = random.Next(0, 1_000_000_000);
         return $$"""{ "A": {{n}}, "B": {{n}}.00, "C": "{{n}}"  }""";

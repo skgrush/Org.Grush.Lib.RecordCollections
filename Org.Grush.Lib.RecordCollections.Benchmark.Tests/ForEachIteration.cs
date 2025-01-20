@@ -1,12 +1,15 @@
 using System.Runtime.CompilerServices;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Jobs;
 
 namespace Org.Grush.Lib.RecordCollections.Benchmark.Tests;
 
+[SimpleJob(RuntimeMoniker.Net80)]
+[SimpleJob(RuntimeMoniker.NativeAot80)]
 public class ForEachIteration
 {
   [Params(10, 1000, 10_000)]
-  public int Length { get; set; }
+  public int N { get; set; }
 
   private List<int> _initialList;
   private RecordCollection<int> _initialRecordCollection;
@@ -16,7 +19,7 @@ public class ForEachIteration
   public void GlobalSetup()
   {
     var random = new Random();
-    _initialList = Enumerable.Range(0, Length).Select(_ => random.Next(0, Length)).ToList();
+    _initialList = Enumerable.Range(0, N).Select(_ => random.Next(0, N)).ToList();
     _initialRecordCollection = _initialList.ToRecordCollection();
     _initialArray = _initialList.ToArray();
   }

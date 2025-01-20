@@ -7,20 +7,21 @@ namespace Org.Grush.Lib.RecordCollections.Benchmark.Tests;
 
 [SimpleJob(RuntimeMoniker.Net80)]
 [SimpleJob(RuntimeMoniker.NativeAot80)]
-public class JsonDeserializationInt
+public class JsonDeserializationInteger
 {
   [Params(10, 1000, 10_000)]
-  public int Length { get; set; }
+  public int N { get; set; }
 
-  private readonly string _intData;
+  private string _intData;
 
-  public JsonDeserializationInt()
+  [GlobalSetup]
+  public void GlobalSetup()
   {
     Random random = new();
 
     _intData =
       '[' +
-      string.Join(',', Enumerable.Range(0, Length).Select(_ => random.Next(0, 1_000_000_000))) +
+      string.Join(',', Enumerable.Range(0, N).Select(_ => random.Next(0, 1_000_000_000))) +
       ']';
   }
 

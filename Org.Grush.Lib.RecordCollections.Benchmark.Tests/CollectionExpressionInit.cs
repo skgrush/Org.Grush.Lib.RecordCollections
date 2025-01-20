@@ -7,6 +7,10 @@ namespace Org.Grush.Lib.RecordCollections.Benchmark.Tests;
 [SimpleJob(RuntimeMoniker.NativeAot80)]
 public class CollectionExpressionInit
 {
+
+  [Params(32)]
+  public int N { get; set; }
+
   [Benchmark]
   public List<int> ExpressionInit_IntList()
   {
