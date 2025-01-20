@@ -4,3 +4,7 @@ dist/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+/BenchmarkDotNet.Artifacts/*
+coveragereport
+TestResults
+

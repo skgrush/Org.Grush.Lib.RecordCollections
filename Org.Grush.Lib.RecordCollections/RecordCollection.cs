@@ -35,6 +35,14 @@ public static class RecordCollection
 
     return ImmutableArray.CreateRange(enumerable);
   }
+
+  public static bool Equals<T>(RecordCollection<T>? lhs, RecordCollection<T>? rhs) =>
+    (lhs, rhs) switch
+    {
+      (null, null) => true,
+      (not null, not null) => lhs.Equals(rhs),
+      _ => false,
+    };
 }
 
 /// <summary>
@@ -177,13 +185,8 @@ public readonly struct RecordCollection<T> :
   public bool Equals(RecordCollection<T> other)
     => _data.SequenceEqual(other._data);
 
-  public static bool Equals(RecordCollection<T>? lhs, RecordCollection<T>? rhs) =>
-    (lhs, rhs) switch
-    {
-      (null, null) => true,
-      (not null, not null) => lhs.Equals(rhs),
-      _ => false,
-    };
+  public static bool Equals(RecordCollection<T>? a, RecordCollection<T>? b)
+    => RecordCollection.Equals(a, b);
 
   /// <summary>
   /// Gets/caches the combined <see cref="HashCode"/> of each item in the sequence.

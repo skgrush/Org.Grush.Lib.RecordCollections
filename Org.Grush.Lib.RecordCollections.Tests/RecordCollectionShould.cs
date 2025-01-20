@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json;
@@ -7,6 +6,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Newtonsoft.Json;
 using Org.Grush.Lib.RecordCollections.Newtonsoft;
+using JsonException = System.Text.Json.JsonException;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 // ReSharper disable NotAccessedPositionalProperty.Global
 
@@ -66,20 +66,42 @@ public class RecordCollectionShould
     }
 
     [Fact]
-    public void UsingTheEnumerableExtension()
+    public void UsingEnumerableExtension()
     {
       // Assemble
       List<int> oldList = [1, 2, 3];
 
       // Act
-      var coll = oldList.ToRecordCollection();
+      var coll1 = oldList.ToRecordCollection();
+      var coll2 = coll1.ToRecordCollection();
 
       // Assert
-      coll
+      coll1
         .Should()
         .BeOfType<RecordCollection<int>>()
         .And
         .BeEquivalentTo(oldList);
+
+      coll1
+        .Should()
+        .Equal(coll2);
+    }
+
+    [Fact]
+    public void UsingEnumerableExtension_ForReadOnlySpan()
+    {
+      // Assemble
+      ReadOnlySpan<string> span = ["a", "b", "c"];
+
+      // Act
+      var coll1 = span.ToRecordCollection();
+
+      // Assert
+      coll1
+        .Should()
+        .BeOfType<RecordCollection<string>>()
+        .And
+        .BeEquivalentTo("a", "b", "c");
     }
 
     [Fact]
@@ -265,10 +287,10 @@ public class RecordCollectionShould
       RecordCollection<double> collectionB = [3.14159, double.PositiveInfinity];
       RecordCollection<double> unrelatedCollection = [double.PositiveInfinity, 3.14159];
 
-      HashSet<RecordCollection<double>> set = [];
-
       // Act
-      set.Add(collectionA);
+      HashSet<RecordCollection<double>> set = [
+        collectionA,
+      ];
 
       var containCollectionB = set.Contains(collectionB);
 
@@ -291,6 +313,49 @@ public class RecordCollectionShould
 
       // Assert
       areEqual.Should().BeTrue();
+    }
+
+    public class ViaStaticMethod
+    {
+      [Theory]
+      [InlineData(true)]
+      [InlineData(false)]
+      public void WhenNeitherNull(bool shouldBeEqual)
+      {
+        // Assemble
+        RecordCollection<int>? collB = [1, 2, 3];
+        RecordCollection<int>? collA = shouldBeEqual ? [1, 2, 3] : null;
+
+        // Act
+        bool areEqual = RecordCollection<int>.Equals(collA, collB);
+
+        // Assert
+        areEqual.Should().Be(shouldBeEqual);
+      }
+
+      [Fact]
+      public void WhenBothNull()
+      {
+        RecordCollection<string>.Equals(null, null)
+          .Should()
+          .BeTrue();
+      }
+
+      [Theory]
+      [InlineData(false, true)]
+      [InlineData(true, false)]
+      public void WhenMismatchedNullable(bool firstIsNull, bool secondIsNull)
+      {
+        // Assemble
+        RecordCollection<int>? firstColl = firstIsNull ? null : [1, 2, 3, 4];
+        RecordCollection<int>? secondColl = secondIsNull ? null : [1, 2, 3, 4];
+
+        // Act
+        var areEqual = RecordCollection<int>.Equals(firstColl, secondColl);
+
+        // Assert
+        areEqual.Should().BeFalse();
+      }
     }
   }
 
@@ -346,7 +411,7 @@ public class RecordCollectionShould
         {
           Converters = { new RecordCollectionJsonConverterFactory() }
         }));
-        Add("System.Text.Json context", obj => JsonSerializer.Serialize(obj, TestRecordRecordCollectionIntStringTestContext.Default.TestRecordRecordCollectionInt32RecordCollectionString));
+        Add("System.Text.Json context", obj => JsonSerializer.Serialize(obj, TestRecordRecordCollectionIntStringContext.Default.TestRecordRecordCollectionInt32RecordCollectionString));
         Add("Newtonsoft", obj => JsonConvert.SerializeObject(obj, new JsonSerializerSettings
         {
           Converters = { new RecordCollectionNewtonsoftJsonConverterFactory() }
@@ -389,43 +454,77 @@ public class RecordCollectionShould
         )]));
     }
 
-    [Fact]
-    public void WithSourceGeneratedDeserializer()
+    public class WithSourceGeneratedDeserializer
     {
-      const string json =
-        """
-        ["a", "b", "c"]
-        """;
+      [Fact]
+      public void WhenEmptyArray()
+      {
+        const string json = "[]";
 
-      JsonSerializer.Deserialize(
-          json: json,
-          jsonTypeInfo: RecordCollectionOfStringContext.Default.RecordCollectionString
-      )
-        .Should()
-        .BeEquivalentTo(RecordCollection.Create(["a", "b", "c"]));
-    }
+        JsonSerializer.Deserialize(
+            json: json,
+            jsonTypeInfo: RecordCollectionOfStringContext.Default.RecordCollectionString
+          )
+          .Should()
+          .BeEmpty();
+      }
 
-    [Fact]
-    public void WithSourceGeneratedDeserializer_WithNonStandardSettings()
-    {
-      const string json =
-        """
-        ["a",
-          // Just had to interject here
-          /*
-            comments in JSON are cool but problematic
-            */
-        "b", "c"
-        ,
-        ]
-        """;
+      [Fact]
+      public void InSimpleCase()
+      {
+        const string json =
+          """
+          ["a", "b", "c"]
+          """;
 
-      JsonSerializer.Deserialize(
-          json: json,
-          jsonTypeInfo: RecordCollectionOfStringNonStandardContext.Default.RecordCollectionString
-        )
-        .Should()
-        .BeEquivalentTo(RecordCollection.Create(["a", "b", "c"]));
+        JsonSerializer.Deserialize(
+            json: json,
+            jsonTypeInfo: RecordCollectionOfStringContext.Default.RecordCollectionString
+          )
+          .Should()
+          .BeEquivalentTo(RecordCollection.Create(["a", "b", "c"]));
+      }
+
+      [Fact]
+      public void WithNonStandardSettings()
+      {
+        const string json =
+          """
+          ["a",
+            // Just had to interject here
+            /*
+              comments in JSON are cool but problematic
+              */
+          "b", "c"
+          ,
+          ]
+          """;
+
+        JsonSerializer.Deserialize(
+            json: json,
+            jsonTypeInfo: RecordCollectionOfStringNonStandardContext.Default.RecordCollectionString
+          )
+          .Should()
+          .BeEquivalentTo(RecordCollection.Create(["a", "b", "c"]));
+      }
+
+      [Theory]
+      [InlineData("is empty", "")]
+      [InlineData("is null", "null")]
+      [InlineData("no start", " 1, 2, 3 ]")]
+      [InlineData("no end", "[ 1, 2, 3 ")]
+      [InlineData("no end", "[ 1, 2, 3 , ")]
+      [InlineData("no brackets", " 1, 2, 3")]
+      public void ThrowJsonExceptionWhen(string _, string json)
+      {
+        // Assemble
+        Action act = () => JsonSerializer.Deserialize(json, RecordCollectionOfStringContext.Default.RecordCollectionString);
+
+        // Act/Assert
+        act
+          .Should()
+          .ThrowExactly<JsonException>();
+      }
     }
 
     private class RuntimeDeserializers<T> : TheoryData<string, Func<string, T>>
@@ -451,3 +550,11 @@ internal partial class RecordCollectionOfStringContext : JsonSerializerContext;
 [JsonSerializable(typeof(RecordCollection<string>))]
 [JsonSerializable(typeof(string))]
 internal partial class RecordCollectionOfStringNonStandardContext : JsonSerializerContext;
+
+[JsonSourceGenerationOptions(Converters = [typeof(RecordCollectionStrictJsonConverter<int>), typeof(RecordCollectionStrictJsonConverter<string>)])]
+[JsonSerializable(typeof(TestRecord<RecordCollection<int>, RecordCollection<string>>))]
+[JsonSerializable(typeof(RecordCollection<string>))]
+[JsonSerializable(typeof(RecordCollection<int>))]
+[JsonSerializable(typeof(string))]
+[JsonSerializable(typeof(int))]
+internal partial class TestRecordRecordCollectionIntStringContext : JsonSerializerContext;
