@@ -20,7 +20,7 @@ public static class RecordCollection
 
   /// <inheritdoc cref="ToRecordCollection{T}(System.Collections.Generic.IEnumerable{T})"/>
   public static RecordCollection<T> ToRecordCollection<T>(this ReadOnlySpan<T> items)
-    => Create(items);
+    => [..items];
 
   /// <summary>Produces a record collection from the specified elements, as a LINQ-like extensions.</summary>
   public static RecordCollection<T> ToRecordCollection<T>(this IEnumerable<T> enumerable)
