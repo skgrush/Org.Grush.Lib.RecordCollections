@@ -1,5 +1,5 @@
 # Benchmarks
-> (2025-01-21T20:18:21.8116110-06:00)
+> (2025-01-21T21:30:35.7418220-06:00)
 
 
 ## Initializing the type with a collection expression
@@ -19,12 +19,12 @@ Job=CollectionExpression
 ```
 | Method                     | Runtime       | N  | Mean      | Error     | StdDev    | Gen0   | Allocated |
 |--------------------------- |-------------- |--- |----------:|----------:|----------:|-------:|----------:|
-| ListOfIntegers             | .NET 8.0      | 32 | 22.173 ns | 0.0505 ns | 0.0472 ns | 0.0293 |     184 B |
-| RecordCollectionOfIntegers | .NET 8.0      | 32 |  9.195 ns | 0.0881 ns | 0.0824 ns | 0.0242 |     152 B |
-| ArrayOfIntegers            | .NET 8.0      | 32 |  7.231 ns | 0.0895 ns | 0.0837 ns | 0.0242 |     152 B |
-| ListOfIntegers             | NativeAOT 8.0 | 32 | 22.077 ns | 0.0687 ns | 0.0643 ns | 0.0293 |     184 B |
-| RecordCollectionOfIntegers | NativeAOT 8.0 | 32 |  8.884 ns | 0.0226 ns | 0.0212 ns | 0.0242 |     152 B |
-| ArrayOfIntegers            | NativeAOT 8.0 | 32 |  7.430 ns | 0.0145 ns | 0.0136 ns | 0.0242 |     152 B |
+| ListOfIntegers             | .NET 8.0      | 32 | 22.187 ns | 0.0352 ns | 0.0312 ns | 0.0293 |     184 B |
+| RecordCollectionOfIntegers | .NET 8.0      | 32 |  9.125 ns | 0.0346 ns | 0.0324 ns | 0.0242 |     152 B |
+| ArrayOfIntegers            | .NET 8.0      | 32 |  7.285 ns | 0.0927 ns | 0.0867 ns | 0.0242 |     152 B |
+| ListOfIntegers             | NativeAOT 8.0 | 32 | 21.976 ns | 0.0289 ns | 0.0270 ns | 0.0293 |     184 B |
+| RecordCollectionOfIntegers | NativeAOT 8.0 | 32 |  8.847 ns | 0.0340 ns | 0.0318 ns | 0.0242 |     152 B |
+| ArrayOfIntegers            | NativeAOT 8.0 | 32 |  7.308 ns | 0.0232 ns | 0.0217 ns | 0.0242 |     152 B |
 
 
 ## `foreach` loop enumeration
@@ -44,24 +44,24 @@ Job=ForEach
 ```
 | Method                     | Runtime       | N     | Mean         | Error     | StdDev    | Allocated |
 |--------------------------- |-------------- |------ |-------------:|----------:|----------:|----------:|
-| **ListOfIntegers**             | **.NET 8.0**      | **10**    |     **11.30 ns** |  **0.006 ns** |  **0.005 ns** |         **-** |
-| RecordCollectionOfIntegers | .NET 8.0      | 10    |     10.43 ns |  0.008 ns |  0.007 ns |         - |
-| ArrayOfIntegers            | .NET 8.0      | 10    |     10.44 ns |  0.009 ns |  0.008 ns |         - |
-| ListOfIntegers             | NativeAOT 8.0 | 10    |     10.52 ns |  0.004 ns |  0.003 ns |         - |
-| RecordCollectionOfIntegers | NativeAOT 8.0 | 10    |     10.17 ns |  0.012 ns |  0.011 ns |         - |
-| ArrayOfIntegers            | NativeAOT 8.0 | 10    |     10.16 ns |  0.014 ns |  0.013 ns |         - |
-| **ListOfIntegers**             | **.NET 8.0**      | **1000**  |  **1,123.48 ns** |  **1.044 ns** |  **0.977 ns** |         **-** |
-| RecordCollectionOfIntegers | .NET 8.0      | 1000  |  1,127.72 ns |  1.824 ns |  1.706 ns |         - |
-| ArrayOfIntegers            | .NET 8.0      | 1000  |  1,127.28 ns |  2.127 ns |  1.989 ns |         - |
-| ListOfIntegers             | NativeAOT 8.0 | 1000  |  1,423.13 ns |  2.789 ns |  2.609 ns |         - |
-| RecordCollectionOfIntegers | NativeAOT 8.0 | 1000  |  1,391.37 ns |  2.139 ns |  2.001 ns |         - |
-| ArrayOfIntegers            | NativeAOT 8.0 | 1000  |  1,391.13 ns |  1.817 ns |  1.611 ns |         - |
-| **ListOfIntegers**             | **.NET 8.0**      | **10000** | **11,177.43 ns** |  **8.116 ns** |  **7.591 ns** |         **-** |
-| RecordCollectionOfIntegers | .NET 8.0      | 10000 | 11,283.48 ns | 14.174 ns | 13.259 ns |         - |
-| ArrayOfIntegers            | .NET 8.0      | 10000 | 11,281.11 ns | 15.181 ns | 14.200 ns |         - |
-| ListOfIntegers             | NativeAOT 8.0 | 10000 | 14,340.41 ns | 14.716 ns | 13.046 ns |         - |
-| RecordCollectionOfIntegers | NativeAOT 8.0 | 10000 | 14,134.13 ns | 19.140 ns | 15.983 ns |         - |
-| ArrayOfIntegers            | NativeAOT 8.0 | 10000 | 14,123.67 ns | 24.201 ns | 22.638 ns |         - |
+| **ListOfIntegers**             | **.NET 8.0**      | **10**    |     **11.27 ns** |  **0.011 ns** |  **0.010 ns** |         **-** |
+| RecordCollectionOfIntegers | .NET 8.0      | 10    |     10.38 ns |  0.020 ns |  0.019 ns |         - |
+| ArrayOfIntegers            | .NET 8.0      | 10    |     10.38 ns |  0.022 ns |  0.021 ns |         - |
+| ListOfIntegers             | NativeAOT 8.0 | 10    |     10.49 ns |  0.016 ns |  0.015 ns |         - |
+| RecordCollectionOfIntegers | NativeAOT 8.0 | 10    |     10.10 ns |  0.016 ns |  0.015 ns |         - |
+| ArrayOfIntegers            | NativeAOT 8.0 | 10    |     10.10 ns |  0.018 ns |  0.016 ns |         - |
+| **ListOfIntegers**             | **.NET 8.0**      | **1000**  |  **1,119.67 ns** |  **1.513 ns** |  **1.415 ns** |         **-** |
+| RecordCollectionOfIntegers | .NET 8.0      | 1000  |  1,122.78 ns |  1.901 ns |  1.778 ns |         - |
+| ArrayOfIntegers            | .NET 8.0      | 1000  |  1,121.14 ns |  2.089 ns |  1.954 ns |         - |
+| ListOfIntegers             | NativeAOT 8.0 | 1000  |  1,415.40 ns |  2.323 ns |  2.173 ns |         - |
+| RecordCollectionOfIntegers | NativeAOT 8.0 | 1000  |  1,387.49 ns |  1.688 ns |  1.579 ns |         - |
+| ArrayOfIntegers            | NativeAOT 8.0 | 1000  |  1,385.02 ns |  1.068 ns |  0.999 ns |         - |
+| **ListOfIntegers**             | **.NET 8.0**      | **10000** | **11,134.49 ns** | **14.106 ns** | **13.194 ns** |         **-** |
+| RecordCollectionOfIntegers | .NET 8.0      | 10000 | 11,225.89 ns | 22.729 ns | 21.261 ns |         - |
+| ArrayOfIntegers            | .NET 8.0      | 10000 | 11,223.57 ns | 22.880 ns | 20.283 ns |         - |
+| ListOfIntegers             | NativeAOT 8.0 | 10000 | 14,286.88 ns | 18.849 ns | 17.632 ns |         - |
+| RecordCollectionOfIntegers | NativeAOT 8.0 | 10000 | 14,095.40 ns | 16.274 ns | 15.223 ns |         - |
+| ArrayOfIntegers            | NativeAOT 8.0 | 10000 | 14,062.13 ns | 12.096 ns | 10.723 ns |         - |
 
 
 ## System.Text.Json Deserialization - Source-generated, integers
@@ -73,32 +73,32 @@ Class: Org.Grush.Lib.RecordCollections.Benchmark.Tests.JsonDeserializationIntege
 BenchmarkDotNet v0.14.0, macOS Sequoia 15.2 (24C101) [Darwin 24.2.0]
 Apple M1, 1 CPU, 8 logical and 8 physical cores
 .NET SDK 8.0.301
-  [Host]        : .NET 8.0.6 (8.0.624.26715), Arm64 RyuJIT AdvSIMD
-  .NET 8.0      : .NET 8.0.6 (8.0.624.26715), Arm64 RyuJIT AdvSIMD
-  NativeAOT 8.0 : .NET 8.0.6, Arm64 NativeAOT AdvSIMD
+  [Host]                     : .NET 8.0.6 (8.0.624.26715), Arm64 RyuJIT AdvSIMD
+  JsonDeserializationInteger : .NET 8.0.6 (8.0.624.26715), Arm64 RyuJIT AdvSIMD
 
+Job=JsonDeserializationInteger  
 
 ```
-| Method                              | Job           | Runtime       | N     | Mean         | Error     | StdDev    | Gen0    | Gen1   | Allocated |
-|------------------------------------ |-------------- |-------------- |------ |-------------:|----------:|----------:|--------:|-------:|----------:|
-| **Deserialization_IntList**             | **.NET 8.0**      | **.NET 8.0**      | **10**    |     **360.6 ns** |   **0.44 ns** |   **0.41 ns** |  **0.0343** |      **-** |     **216 B** |
-| Deserialization_IntRecordCollection | .NET 8.0      | .NET 8.0      | 10    |     339.4 ns |   0.29 ns |   0.24 ns |  0.0443 |      - |     280 B |
-| Deserialization_IntArray            | .NET 8.0      | .NET 8.0      | 10    |     376.7 ns |   1.99 ns |   1.77 ns |  0.0443 |      - |     280 B |
-| Deserialization_IntList             | NativeAOT 8.0 | NativeAOT 8.0 | 10    |     468.4 ns |   0.15 ns |   0.14 ns |  0.0343 |      - |     216 B |
-| Deserialization_IntRecordCollection | NativeAOT 8.0 | NativeAOT 8.0 | 10    |     476.2 ns |   0.35 ns |   0.31 ns |  0.0439 |      - |     280 B |
-| Deserialization_IntArray            | NativeAOT 8.0 | NativeAOT 8.0 | 10    |     479.0 ns |   0.36 ns |   0.32 ns |  0.0439 |      - |     280 B |
-| **Deserialization_IntList**             | **.NET 8.0**      | **.NET 8.0**      | **1000**  |  **26,529.7 ns** |  **15.96 ns** |  **14.93 ns** |  **1.3123** |      **-** |    **8425 B** |
-| Deserialization_IntRecordCollection | .NET 8.0      | .NET 8.0      | 1000  |  25,881.9 ns |  26.97 ns |  23.90 ns |  1.9836 |      - |   12449 B |
-| Deserialization_IntArray            | .NET 8.0      | .NET 8.0      | 1000  |  26,688.0 ns |   7.03 ns |   5.87 ns |  1.9836 |      - |   12449 B |
-| Deserialization_IntList             | NativeAOT 8.0 | NativeAOT 8.0 | 1000  |  32,657.8 ns |  15.26 ns |  14.27 ns |  1.2817 |      - |    8426 B |
-| Deserialization_IntRecordCollection | NativeAOT 8.0 | NativeAOT 8.0 | 1000  |  33,361.8 ns |  26.37 ns |  24.67 ns |  1.9531 |      - |   12450 B |
-| Deserialization_IntArray            | NativeAOT 8.0 | NativeAOT 8.0 | 1000  |  32,640.7 ns |  42.67 ns |  37.83 ns |  1.9531 |      - |   12450 B |
-| **Deserialization_IntList**             | **.NET 8.0**      | **.NET 8.0**      | **10000** | **263,408.9 ns** | **221.46 ns** | **207.15 ns** | **20.5078** |      **-** |  **131656 B** |
-| Deserialization_IntRecordCollection | .NET 8.0      | .NET 8.0      | 10000 | 258,538.6 ns | 314.12 ns | 293.83 ns | 26.8555 | 5.3711 |  171680 B |
-| Deserialization_IntArray            | .NET 8.0      | .NET 8.0      | 10000 | 264,266.8 ns | 232.39 ns | 206.01 ns | 26.8555 | 5.3711 |  171680 B |
-| Deserialization_IntList             | NativeAOT 8.0 | NativeAOT 8.0 | 10000 | 325,244.4 ns | 306.85 ns | 272.01 ns | 20.5078 | 3.9063 |  131656 B |
-| Deserialization_IntRecordCollection | NativeAOT 8.0 | NativeAOT 8.0 | 10000 | 329,488.8 ns |  95.04 ns |  88.90 ns | 26.8555 | 5.3711 |  171680 B |
-| Deserialization_IntArray            | NativeAOT 8.0 | NativeAOT 8.0 | 10000 | 323,556.6 ns | 257.73 ns | 241.09 ns | 26.8555 | 5.3711 |  171680 B |
+| Method              | Runtime       | N     | Mean         | Error     | StdDev    | Gen0    | Gen1   | Allocated |
+|-------------------- |-------------- |------ |-------------:|----------:|----------:|--------:|-------:|----------:|
+| **IntList**             | **.NET 8.0**      | **10**    |     **357.5 ns** |   **0.48 ns** |   **0.45 ns** |  **0.0343** |      **-** |     **216 B** |
+| IntRecordCollection | .NET 8.0      | 10    |     341.6 ns |   0.55 ns |   0.52 ns |  0.0443 |      - |     280 B |
+| IntArray            | .NET 8.0      | 10    |     370.0 ns |   0.39 ns |   0.34 ns |  0.0443 |      - |     280 B |
+| IntList             | NativeAOT 8.0 | 10    |     461.8 ns |   0.50 ns |   0.47 ns |  0.0343 |      - |     216 B |
+| IntRecordCollection | NativeAOT 8.0 | 10    |     475.6 ns |   0.50 ns |   0.44 ns |  0.0439 |      - |     280 B |
+| IntArray            | NativeAOT 8.0 | 10    |     495.8 ns |   2.84 ns |   2.52 ns |  0.0439 |      - |     280 B |
+| **IntList**             | **.NET 8.0**      | **1000**  |  **26,338.3 ns** | **179.57 ns** | **149.95 ns** |  **1.3123** |      **-** |    **8425 B** |
+| IntRecordCollection | .NET 8.0      | 1000  |  25,857.7 ns |  18.83 ns |  17.61 ns |  1.9836 |      - |   12449 B |
+| IntArray            | .NET 8.0      | 1000  |  26,576.1 ns |  26.03 ns |  23.08 ns |  1.9836 |      - |   12449 B |
+| IntList             | NativeAOT 8.0 | 1000  |  32,650.3 ns |  16.13 ns |  14.30 ns |  1.2817 |      - |    8426 B |
+| IntRecordCollection | NativeAOT 8.0 | 1000  |  33,322.8 ns |  24.04 ns |  22.49 ns |  1.9531 |      - |   12450 B |
+| IntArray            | NativeAOT 8.0 | 1000  |  32,672.7 ns |  23.67 ns |  19.77 ns |  1.9531 |      - |   12450 B |
+| **IntList**             | **.NET 8.0**      | **10000** | **261,267.4 ns** | **190.76 ns** | **169.11 ns** | **20.5078** |      **-** |  **131656 B** |
+| IntRecordCollection | .NET 8.0      | 10000 | 258,331.2 ns | 186.14 ns | 165.01 ns | 26.8555 | 5.3711 |  171680 B |
+| IntArray            | .NET 8.0      | 10000 | 264,799.6 ns | 342.20 ns | 320.09 ns | 26.8555 | 5.3711 |  171680 B |
+| IntList             | NativeAOT 8.0 | 10000 | 325,118.1 ns | 283.02 ns | 264.74 ns | 20.5078 | 3.9063 |  131656 B |
+| IntRecordCollection | NativeAOT 8.0 | 10000 | 329,834.1 ns | 302.30 ns | 267.98 ns | 26.8555 | 5.3711 |  171680 B |
+| IntArray            | NativeAOT 8.0 | 10000 | 323,044.6 ns | 127.64 ns | 113.15 ns | 26.8555 | 5.3711 |  171680 B |
 
 
 ## System.Text.Json Deserialization - Source-generated, record of three types.
@@ -110,32 +110,32 @@ Class: Org.Grush.Lib.RecordCollections.Benchmark.Tests.JsonDeserializationObject
 BenchmarkDotNet v0.14.0, macOS Sequoia 15.2 (24C101) [Darwin 24.2.0]
 Apple M1, 1 CPU, 8 logical and 8 physical cores
 .NET SDK 8.0.301
-  [Host]        : .NET 8.0.6 (8.0.624.26715), Arm64 RyuJIT AdvSIMD
-  .NET 8.0      : .NET 8.0.6 (8.0.624.26715), Arm64 RyuJIT AdvSIMD
-  NativeAOT 8.0 : .NET 8.0.6, Arm64 NativeAOT AdvSIMD
+  [Host]                    : .NET 8.0.6 (8.0.624.26715), Arm64 RyuJIT AdvSIMD
+  JsonDeserializationObject : .NET 8.0.6 (8.0.624.26715), Arm64 RyuJIT AdvSIMD
 
+Job=JsonDeserializationObject  
 
 ```
-| Method                                        | Job           | Runtime       | N     | Mean         | Error      | StdDev     | Gen0     | Gen1     | Gen2     | Allocated  |
-|---------------------------------------------- |-------------- |-------------- |------ |-------------:|-----------:|-----------:|---------:|---------:|---------:|-----------:|
-| **Deserialization_NumberObject_List**             | **.NET 8.0**      | **.NET 8.0**      | **10**    |     **3.354 μs** |  **0.0026 μs** |  **0.0023 μs** |   **0.4272** |        **-** |        **-** |    **2.63 KB** |
-| Deserialization_NumberObject_RecordCollection | .NET 8.0      | .NET 8.0      | 10    |     3.042 μs |  0.0010 μs |  0.0008 μs |   0.3738 |        - |        - |     2.3 KB |
-| Deserialization_NumberObject_Array            | .NET 8.0      | .NET 8.0      | 10    |     3.329 μs |  0.0026 μs |  0.0024 μs |   0.4425 |        - |        - |    2.73 KB |
-| Deserialization_NumberObject_List             | NativeAOT 8.0 | NativeAOT 8.0 | 10    |     4.210 μs |  0.0033 μs |  0.0029 μs |   0.4272 |        - |        - |    2.63 KB |
-| Deserialization_NumberObject_RecordCollection | NativeAOT 8.0 | NativeAOT 8.0 | 10    |     4.134 μs |  0.0053 μs |  0.0045 μs |   0.3738 |        - |        - |     2.3 KB |
-| Deserialization_NumberObject_Array            | NativeAOT 8.0 | NativeAOT 8.0 | 10    |     4.227 μs |  0.0037 μs |  0.0034 μs |   0.4425 |        - |        - |    2.73 KB |
-| **Deserialization_NumberObject_List**             | **.NET 8.0**      | **.NET 8.0**      | **1000**  |   **311.134 μs** |  **0.3935 μs** |  **0.3489 μs** |  **33.2031** |   **7.3242** |        **-** |  **204.27 KB** |
-| Deserialization_NumberObject_RecordCollection | .NET 8.0      | .NET 8.0      | 1000  |   288.644 μs |  0.2186 μs |  0.1825 μs |  34.1797 |   7.3242 |        - |  211.67 KB |
-| Deserialization_NumberObject_Array            | .NET 8.0      | .NET 8.0      | 1000  |   428.423 μs |  0.2964 μs |  0.2628 μs |  34.1797 |   6.8359 |        - |   212.1 KB |
-| Deserialization_NumberObject_List             | NativeAOT 8.0 | NativeAOT 8.0 | 1000  |   397.886 μs |  0.1178 μs |  0.0984 μs |  33.2031 |   7.8125 |        - |  204.27 KB |
-| Deserialization_NumberObject_RecordCollection | NativeAOT 8.0 | NativeAOT 8.0 | 1000  |   396.105 μs |  0.1645 μs |  0.1458 μs |  34.1797 |   7.8125 |        - |  211.67 KB |
-| Deserialization_NumberObject_Array            | NativeAOT 8.0 | NativeAOT 8.0 | 1000  |   397.684 μs |  0.2370 μs |  0.2217 μs |  34.1797 |   6.8359 |        - |   212.1 KB |
-| **Deserialization_NumberObject_List**             | **.NET 8.0**      | **.NET 8.0**      | **10000** | **3,919.794 μs** |  **6.7586 μs** |  **6.3220 μs** | **492.1875** | **328.1250** | **164.0625** | **2685.45 KB** |
-| Deserialization_NumberObject_RecordCollection | .NET 8.0      | .NET 8.0      | 10000 | 3,637.810 μs | 14.7700 μs | 13.8158 μs | 500.0000 | 335.9375 | 167.9688 | 2763.23 KB |
-| Deserialization_NumberObject_Array            | .NET 8.0      | .NET 8.0      | 10000 | 3,880.440 μs |  6.5752 μs |  6.1505 μs | 503.9063 | 335.9375 | 167.9688 | 2763.71 KB |
-| Deserialization_NumberObject_List             | NativeAOT 8.0 | NativeAOT 8.0 | 10000 | 4,870.061 μs |  4.9831 μs |  4.6612 μs | 484.3750 | 328.1250 | 164.0625 | 2685.84 KB |
-| Deserialization_NumberObject_RecordCollection | NativeAOT 8.0 | NativeAOT 8.0 | 10000 | 4,765.698 μs |  8.7325 μs |  7.2920 μs | 500.0000 | 328.1250 | 164.0625 | 2763.63 KB |
-| Deserialization_NumberObject_Array            | NativeAOT 8.0 | NativeAOT 8.0 | 10000 | 4,780.327 μs |  3.2912 μs |  2.9176 μs | 500.0000 | 328.1250 | 164.0625 |  2764.1 KB |
+| Method                        | Runtime       | N     | Mean         | Error      | StdDev     | Gen0     | Gen1     | Gen2     | Allocated  |
+|------------------------------ |-------------- |------ |-------------:|-----------:|-----------:|---------:|---------:|---------:|-----------:|
+| **NumberObject_List**             | **.NET 8.0**      | **10**    |     **3.540 μs** |  **0.0020 μs** |  **0.0017 μs** |   **0.4272** |        **-** |        **-** |    **2.63 KB** |
+| NumberObject_RecordCollection | .NET 8.0      | 10    |     3.054 μs |  0.0035 μs |  0.0033 μs |   0.3738 |        - |        - |     2.3 KB |
+| NumberObject_Array            | .NET 8.0      | 10    |     3.343 μs |  0.0017 μs |  0.0015 μs |   0.4425 |        - |        - |    2.73 KB |
+| NumberObject_List             | NativeAOT 8.0 | 10    |     4.265 μs |  0.0080 μs |  0.0075 μs |   0.4272 |        - |        - |    2.63 KB |
+| NumberObject_RecordCollection | NativeAOT 8.0 | 10    |     4.134 μs |  0.0027 μs |  0.0025 μs |   0.3738 |        - |        - |     2.3 KB |
+| NumberObject_Array            | NativeAOT 8.0 | 10    |     4.269 μs |  0.0049 μs |  0.0043 μs |   0.4425 |        - |        - |    2.73 KB |
+| **NumberObject_List**             | **.NET 8.0**      | **1000**  |   **311.718 μs** |  **0.5182 μs** |  **0.4847 μs** |  **33.2031** |   **7.3242** |        **-** |  **204.27 KB** |
+| NumberObject_RecordCollection | .NET 8.0      | 1000  |   290.969 μs |  0.3580 μs |  0.3348 μs |  34.1797 |   7.3242 |        - |  211.67 KB |
+| NumberObject_Array            | .NET 8.0      | 1000  |   312.646 μs |  0.0941 μs |  0.0834 μs |  34.1797 |   6.8359 |        - |   212.1 KB |
+| NumberObject_List             | NativeAOT 8.0 | 1000  |   398.666 μs |  0.3236 μs |  0.2868 μs |  33.2031 |   7.8125 |        - |  204.27 KB |
+| NumberObject_RecordCollection | NativeAOT 8.0 | 1000  |   395.903 μs |  0.1378 μs |  0.1222 μs |  34.1797 |   7.3242 |        - |  211.67 KB |
+| NumberObject_Array            | NativeAOT 8.0 | 1000  |   398.400 μs |  0.3234 μs |  0.2525 μs |  34.1797 |   6.8359 |        - |   212.1 KB |
+| **NumberObject_List**             | **.NET 8.0**      | **10000** | **4,068.437 μs** | **19.7877 μs** | **18.5094 μs** | **515.6250** | **375.0000** | **234.3750** | **2685.56 KB** |
+| NumberObject_RecordCollection | .NET 8.0      | 10000 | 3,850.408 μs | 10.0235 μs |  9.3760 μs | 515.6250 | 359.3750 | 195.3125 | 2763.15 KB |
+| NumberObject_Array            | .NET 8.0      | 10000 | 4,048.904 μs | 33.1392 μs | 30.9985 μs | 523.4375 | 375.0000 | 226.5625 | 2763.69 KB |
+| NumberObject_List             | NativeAOT 8.0 | 10000 | 4,998.470 μs | 15.7650 μs | 14.7466 μs | 507.8125 | 367.1875 | 218.7500 | 2685.87 KB |
+| NumberObject_RecordCollection | NativeAOT 8.0 | 10000 | 4,953.542 μs | 17.3009 μs | 16.1833 μs | 500.0000 | 351.5625 | 218.7500 | 2763.68 KB |
+| NumberObject_Array            | NativeAOT 8.0 | 10000 | 4,997.514 μs | 18.3427 μs | 16.2603 μs | 523.4375 | 382.8125 | 195.3125 | 2764.16 KB |
 
 
 ## System.Text.Json Deserialization - Dynamic
@@ -153,12 +153,12 @@ Apple M1, 1 CPU, 8 logical and 8 physical cores
 Job=.NET 8.0  Runtime=.NET 8.0  
 
 ```
-| Method                                    | N   | Mean          | Error      | StdDev     | Gen0      | Gen1     | Gen2     | Allocated   |
-|------------------------------------------ |---- |--------------:|-----------:|-----------:|----------:|---------:|---------:|------------:|
-| **ListOfDtosOfLists**                         | **10**  |      **6.108 μs** |  **0.0049 μs** |  **0.0043 μs** |    **0.9232** |   **0.0076** |        **-** |      **5.7 KB** |
-| RecordCollectionOfDtosOfRecordCollections | 10  |      5.126 μs |  0.0033 μs |  0.0031 μs |    1.0300 |   0.0076 |        - |     6.34 KB |
-| **ListOfDtosOfLists**                         | **500** |  **9,507.797 μs** | **89.5378 μs** | **83.7537 μs** | **1562.5000** | **906.2500** | **312.5000** |  **9255.28 KB** |
-| RecordCollectionOfDtosOfRecordCollections | 500 | 11,791.138 μs | 17.4397 μs | 16.3131 μs | 1781.2500 | 859.3750 | 343.7500 | 10745.33 KB |
+| Method                                    | N   | Mean          | Error       | StdDev     | Gen0      | Gen1     | Gen2     | Allocated  |
+|------------------------------------------ |---- |--------------:|------------:|-----------:|----------:|---------:|---------:|-----------:|
+| **ListOfDtosOfLists**                         | **10**  |      **6.054 μs** |   **0.0021 μs** |  **0.0016 μs** |    **0.9232** |   **0.0076** |        **-** |     **5.7 KB** |
+| RecordCollectionOfDtosOfRecordCollections | 10  |      5.117 μs |   0.0057 μs |  0.0051 μs |    1.0300 |   0.0076 |        - |    6.34 KB |
+| **ListOfDtosOfLists**                         | **500** | **10,405.051 μs** | **106.4875 μs** | **99.6085 μs** | **1578.1250** | **906.2500** | **312.5000** | **9254.58 KB** |
+| RecordCollectionOfDtosOfRecordCollections | 500 | 11,230.055 μs |  66.4236 μs | 51.8592 μs | 1718.7500 | 843.7500 | 343.7500 | 10745.1 KB |
 
 
 ## LINQ iteration
@@ -178,12 +178,12 @@ Job=.NET 8.0  Runtime=.NET 8.0
 ```
 | Method                       | Length | Mean        | Error     | StdDev    | Gen0   | Allocated |
 |----------------------------- |------- |------------:|----------:|----------:|-------:|----------:|
-| **ListSelectToList**             | **10**     |    **33.13 ns** |  **0.021 ns** |  **0.020 ns** | **0.0268** |     **168 B** |
-| RecordCollectionSelectToList | 10     |    39.16 ns |  0.033 ns |  0.027 ns | 0.0280 |     176 B |
-| ListSelectToRecordCollection | 10     |    40.04 ns |  0.142 ns |  0.132 ns | 0.0216 |     136 B |
-| **ListSelectToList**             | **1000**   |   **604.53 ns** |  **2.216 ns** |  **2.073 ns** | **0.6571** |    **4128 B** |
-| RecordCollectionSelectToList | 1000   |   707.13 ns |  0.657 ns |  0.583 ns | 0.6590 |    4136 B |
-| ListSelectToRecordCollection | 1000   |   581.56 ns |  1.969 ns |  1.842 ns | 0.6523 |    4096 B |
-| **ListSelectToList**             | **10000**  | **5,645.67 ns** |  **4.539 ns** |  **4.024 ns** | **6.3629** |   **40128 B** |
-| RecordCollectionSelectToList | 10000  | 6,230.58 ns | 23.033 ns | 21.545 ns | 6.3629 |   40136 B |
-| ListSelectToRecordCollection | 10000  | 5,569.98 ns |  5.806 ns |  5.147 ns | 6.3629 |   40096 B |
+| **ListSelectToList**             | **10**     |    **34.60 ns** |  **0.027 ns** |  **0.021 ns** | **0.0268** |     **168 B** |
+| RecordCollectionSelectToList | 10     |    38.82 ns |  0.083 ns |  0.073 ns | 0.0280 |     176 B |
+| ListSelectToRecordCollection | 10     |    40.13 ns |  0.066 ns |  0.062 ns | 0.0216 |     136 B |
+| **ListSelectToList**             | **1000**   |   **598.77 ns** |  **1.319 ns** |  **1.234 ns** | **0.6571** |    **4128 B** |
+| RecordCollectionSelectToList | 1000   |   701.78 ns |  0.610 ns |  0.571 ns | 0.6590 |    4136 B |
+| ListSelectToRecordCollection | 1000   |   580.66 ns |  1.411 ns |  1.319 ns | 0.6523 |    4096 B |
+| **ListSelectToList**             | **10000**  | **5,627.66 ns** |  **8.179 ns** |  **7.651 ns** | **6.3629** |   **40128 B** |
+| RecordCollectionSelectToList | 10000  | 6,202.02 ns | 27.270 ns | 24.175 ns | 6.3629 |   40136 B |
+| ListSelectToRecordCollection | 10000  | 5,557.53 ns | 10.081 ns |  9.430 ns | 6.3629 |   40096 B |
