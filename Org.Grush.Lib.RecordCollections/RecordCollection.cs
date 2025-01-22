@@ -7,7 +7,7 @@ namespace Org.Grush.Lib.RecordCollections {
 
 public static class RecordCollection
 {
-  /// <summary>Alternative to <code>RecordCollection&lt;T&gt;.Empty</code></summary>
+  /// <summary>Alternative to <see cref="RecordCollection{T}.Empty"/>.</summary>
   public static RecordCollection<T> Create<T>()
     => RecordCollection<T>.Empty;
 
@@ -84,6 +84,7 @@ public readonly struct RecordCollection<T> :
   public T this[int index]
   {
     get => _data[index];
+    [DoesNotReturn, Obsolete($"Will throw '{ExceptionMessage.Immutable}'")]
     set => throw new NotSupportedException(ExceptionMessage.Immutable);
   }
 
