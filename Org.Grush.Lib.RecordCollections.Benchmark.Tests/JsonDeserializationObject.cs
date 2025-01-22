@@ -39,7 +39,7 @@ public class JsonDeserializationObject
       ']';
   }
 
-  [Benchmark]
+  [Benchmark(Baseline = true)]
   public List<NumberData> NumberObject_List()
   {
     List<NumberData> list = JsonSerializer.Deserialize(_numberData, NumberDataJsonContext.Default.ListMyRecordInt32DoubleString)!;

@@ -46,7 +46,7 @@ public class JsonDynamicDeserialization
     _listOfDtoOfList = JsonSerializer.Serialize(listDtos);
   }
 
-  [Benchmark]
+  [Benchmark(Baseline = true)]
   public List<DtoOfLists> ListOfDtosOfLists()
   {
     var v = JsonSerializer.Deserialize<List<DtoOfLists>>(_listOfDtoOfList)!;

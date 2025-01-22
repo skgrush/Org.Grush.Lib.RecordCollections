@@ -29,7 +29,7 @@ public class JsonDeserializationInteger
       ']';
   }
 
-  [Benchmark]
+  [Benchmark(Baseline = true)]
   public List<int> IntList()
   {
     List<int> list = JsonSerializer.Deserialize(_intData, JsonIntegerContext.Default.ListInt32)!;

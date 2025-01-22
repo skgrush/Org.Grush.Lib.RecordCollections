@@ -28,7 +28,7 @@ public class ForEachIteration
     _initialArray = _initialList.ToArray();
   }
 
-  [Benchmark]
+  [Benchmark(Baseline = true)]
   public void ListOfIntegers()
   {
     foreach (var x in _initialList)

@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
@@ -10,9 +11,14 @@ var filteredArgs = args
   .ToArray();
 
 
+Stopwatch stopwatch = Stopwatch.StartNew();
+
+stopwatch.Start();
 var summaries = BenchmarkSwitcher
   .FromAssembly(typeof(Program).Assembly)
-  .Run(filteredArgs);
+  .Run(filteredArgs)
+  .ToArray();
+stopwatch.Stop();
 
 if (args.Contains(noOutputArg))
 {
@@ -29,9 +35,16 @@ if (file.Exists)
   file.Delete();
 await using var writer = new StreamWriter(file.FullName);
 
-writer.Write("# Benchmarks\n");
-writer.Write("> ({0:o})\n", timestamp);
-writer.Flush();
+await writer.WriteAsync("# Benchmarks\n");
+writer.Write(
+  """
+  ```
+  Finished: {0:o}
+  Elapsed: {1}
+  ```
+
+  """, timestamp, stopwatch.Elapsed);
+await writer.FlushAsync();
 
 
 var exporter = MarkdownExporter.GitHub;

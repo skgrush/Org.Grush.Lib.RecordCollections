@@ -24,7 +24,7 @@ public class SelectToList
     _initialRecordCollection = _initialList.ToRecordCollection();
   }
 
-  [Benchmark]
+  [Benchmark(Baseline = true)]
   public List<int> ListSelectToList()
   {
     return _initialList.Select(x => x).ToList();
