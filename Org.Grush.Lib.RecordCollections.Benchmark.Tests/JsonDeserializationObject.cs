@@ -12,8 +12,8 @@ public record MyRecord<T0, T1, T2>(T0 A, T1 B, T2 C);
 
 
 [MemoryDiagnoser]
-[SimpleJob(RuntimeMoniker.Net80)]
-[SimpleJob(RuntimeMoniker.NativeAot80)]
+[SimpleJob(RuntimeMoniker.Net80, id: "JsonDeserializationObject")]
+[SimpleJob(RuntimeMoniker.NativeAot80, id: "JsonDeserializationObject")]
 public class JsonDeserializationObject
 {
   public const string Title = "System.Text.Json Deserialization - Source-generated, record of three types.";
@@ -40,21 +40,21 @@ public class JsonDeserializationObject
   }
 
   [Benchmark]
-  public List<NumberData> Deserialization_NumberObject_List()
+  public List<NumberData> NumberObject_List()
   {
     List<NumberData> list = JsonSerializer.Deserialize(_numberData, NumberDataJsonContext.Default.ListMyRecordInt32DoubleString)!;
     return list;
   }
 
   [Benchmark]
-  public RecordCollection<NumberData> Deserialization_NumberObject_RecordCollection()
+  public RecordCollection<NumberData> NumberObject_RecordCollection()
   {
     RecordCollection<NumberData> recordCollection = JsonSerializer.Deserialize(_numberData, NumberDataJsonContext.Default.RecordCollectionMyRecordInt32DoubleString)!;
     return recordCollection;
   }
 
   [Benchmark]
-  public NumberData[] Deserialization_NumberObject_Array()
+  public NumberData[] NumberObject_Array()
   {
     NumberData[] array = JsonSerializer.Deserialize(_numberData, NumberDataJsonContext.Default.MyRecordInt32DoubleStringArray)!;
     return array;

@@ -6,8 +6,8 @@ using BenchmarkDotNet.Jobs;
 namespace Org.Grush.Lib.RecordCollections.Benchmark.Tests;
 
 [MemoryDiagnoser]
-[SimpleJob(RuntimeMoniker.Net80)]
-[SimpleJob(RuntimeMoniker.NativeAot80)]
+[SimpleJob(RuntimeMoniker.Net80, id: "JsonDeserializationInteger")]
+[SimpleJob(RuntimeMoniker.NativeAot80, id: "JsonDeserializationInteger")]
 public class JsonDeserializationInteger
 {
   public const string Title = "System.Text.Json Deserialization - Source-generated, integers";
@@ -30,21 +30,21 @@ public class JsonDeserializationInteger
   }
 
   [Benchmark]
-  public List<int> Deserialization_IntList()
+  public List<int> IntList()
   {
     List<int> list = JsonSerializer.Deserialize(_intData, JsonIntegerContext.Default.ListInt32)!;
     return list;
   }
 
   [Benchmark]
-  public RecordCollection<int> Deserialization_IntRecordCollection()
+  public RecordCollection<int> IntRecordCollection()
   {
     RecordCollection<int> recordCollection = JsonSerializer.Deserialize(_intData, JsonIntegerContext.Default.RecordCollectionInt32)!;
     return recordCollection;
   }
 
   [Benchmark]
-  public int[] Deserialization_IntArray()
+  public int[] IntArray()
   {
     int[] array = JsonSerializer.Deserialize(_intData, JsonIntegerContext.Default.Int32Array)!;
     return array;
