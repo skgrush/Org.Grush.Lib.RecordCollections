@@ -86,7 +86,10 @@ public readonly struct RecordCollection<T> :
     get => _data[index];
     set => throw new NotSupportedException(ExceptionMessage.Immutable);
   }
-  public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)_data).GetEnumerator();
+
+  public ImmutableArray<T>.Enumerator GetEnumerator() => _data.GetEnumerator();
+  IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>)_data).GetEnumerator();
+  IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<T>)_data).GetEnumerator();
 
   #region IImmutableList implementation overrides
 
@@ -162,7 +165,6 @@ public readonly struct RecordCollection<T> :
   #endregion IList implementation
 
   #region IImmutableList implementation
-  IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
   IImmutableList<T> IImmutableList<T>.Add(T value) => Add(value);
   IImmutableList<T> IImmutableList<T>.AddRange(IEnumerable<T> items) => AddRange(items);
   IImmutableList<T> IImmutableList<T>.Clear() => Clear();
