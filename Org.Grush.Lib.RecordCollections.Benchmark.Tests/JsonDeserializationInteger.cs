@@ -5,14 +5,18 @@ using BenchmarkDotNet.Jobs;
 
 namespace Org.Grush.Lib.RecordCollections.Benchmark.Tests;
 
+[MemoryDiagnoser]
 [SimpleJob(RuntimeMoniker.Net80)]
 [SimpleJob(RuntimeMoniker.NativeAot80)]
 public class JsonDeserializationInteger
 {
+  public const string Title = "System.Text.Json Deserialization - Source-generated, integers";
+  public const string Subtitle = "Deserialize integer collections using explicit `JsonSerializerContext`s.";
+
   [Params(10, 1000, 10_000)]
   public int N { get; set; }
 
-  private string _intData;
+  private string _intData = null!;
 
   [GlobalSetup]
   public void GlobalSetup()

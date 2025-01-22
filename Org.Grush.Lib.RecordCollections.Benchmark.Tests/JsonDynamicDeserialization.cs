@@ -16,13 +16,17 @@ public record SomeRecord<T1, T2>(
   where T2 : IEnumerable<int>
 ;
 
+[MemoryDiagnoser]
 [SimpleJob(RuntimeMoniker.Net80)]
-public class JsonDeserialization_NoContext
+public class JsonDynamicDeserialization
 {
+  public const string Title = "System.Text.Json Deserialization - Dynamic";
+  public const string Subtitle = "Deserialize collections using automatically-selected factories and converters.";
+
   [Params(10, 500)]
   public int N { get; set; }
 
-  private string _listOfDtoOfList;
+  private string _listOfDtoOfList = null!;
 
   [GlobalSetup]
   public void GlobalSetup()
@@ -43,14 +47,14 @@ public class JsonDeserialization_NoContext
   }
 
   [Benchmark]
-  public List<DtoOfLists> DynamicDeserialization_List()
+  public List<DtoOfLists> ListOfDtosOfLists()
   {
-    var v = JsonSerializer.Deserialize<List<DtoOfLists>>(_listOfDtoOfList);
+    var v = JsonSerializer.Deserialize<List<DtoOfLists>>(_listOfDtoOfList)!;
     return v;
   }
 
   [Benchmark]
-  public RecordCollection<DtoOfCollections> DynamicDeserialization_RecordCollection()
+  public RecordCollection<DtoOfCollections> RecordCollectionOfDtosOfRecordCollections()
   {
     var v = JsonSerializer.Deserialize<RecordCollection<DtoOfCollections>>(_listOfDtoOfList);
     return v;

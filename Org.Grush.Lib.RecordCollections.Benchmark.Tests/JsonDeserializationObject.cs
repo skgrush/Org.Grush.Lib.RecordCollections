@@ -11,14 +11,18 @@ public record MyRecord<T0, T1, T2>(T0 A, T1 B, T2 C);
 
 
 
+[MemoryDiagnoser]
 [SimpleJob(RuntimeMoniker.Net80)]
 [SimpleJob(RuntimeMoniker.NativeAot80)]
 public class JsonDeserializationObject
 {
+  public const string Title = "System.Text.Json Deserialization - Source-generated, record of three types.";
+  public const string Subtitle = "Deserialize `(int, double, string)` collections using explicit `JsonSerializerContext`s.";
+
   [Params(10, 1000, 10_000)]
   public int N { get; set; }
 
-  private string _numberData; // MyRecord<int, double, string>
+  private string _numberData = null!; // MyRecord<int, double, string>
 
   [GlobalSetup]
   public void GlobalSetup()

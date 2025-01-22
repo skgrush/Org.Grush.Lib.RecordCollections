@@ -1,4 +1,5 @@
-﻿using BenchmarkDotNet.Exporters;
+﻿using System.Reflection;
+using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
 
@@ -28,7 +29,7 @@ if (file.Exists)
   file.Delete();
 await using var writer = new StreamWriter(file.FullName);
 
-writer.Write("#Benchmarks\n");
+writer.Write("# Benchmarks\n");
 writer.Write("> ({0:o})\n", timestamp);
 writer.Flush();
 
@@ -37,10 +38,24 @@ var exporter = MarkdownExporter.GitHub;
 
 foreach (Summary summary in summaries)
 {
-  await writer.WriteAsync($"\n\n## {summary.Title}\n\n");
+  var (title, subtitle, classPath) = GetTitles(summary);
+
+  if (title is null && subtitle is null)
+  {
+    await writer.WriteAsync($"\n\n## {summary.Title}\n\n");
+  }
+  else
+  {
+    if (title is not null)
+      await writer.WriteAsync($"\n\n## {title}\n");
+    if (subtitle is not null)
+      await writer.WriteAsync($"### {subtitle}\n");
+  }
+
+  await writer.WriteLineAsync($"Class: {classPath}\n");
   await writer.FlushAsync();
 
-  foreach (var line in exporter.ExportToFiles(summary, null))
+  foreach (var line in exporter.ExportToFiles(summary, null!))
   {
     await using var reader = new FileStream(line, FileMode.Open);
     await reader.CopyToAsync(writer.BaseStream);
@@ -52,3 +67,18 @@ foreach (Summary summary in summaries)
 Console.WriteLine($"Wrote compound Markdown to {file.FullName}");
 
 return 0;
+
+
+
+static (string? title, string? subtitle, string classPath) GetTitles(Summary summary)
+{
+  var jobClass = summary.BenchmarksCases.Select(c => c.Descriptor.Type).Distinct().Single();
+
+  var fields = jobClass.GetFields(BindingFlags.Public | BindingFlags.Static).ToDictionary(f => f.Name);
+
+  return (
+    title: (string?)fields.GetValueOrDefault("Title")?.GetValue(null),
+    subtitle: (string?)fields.GetValueOrDefault("Subtitle")?.GetValue(null),
+    classPath: jobClass.FullName!
+  );
+}

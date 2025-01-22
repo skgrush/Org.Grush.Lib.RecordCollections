@@ -10,5 +10,6 @@ sudo dotnet run -c Release -- -f '*'
 To run interactively without updating the markdown file, run:
 
 ```sh
-dotnet run -c Release -- --no-output
+# sudo allows setting high priority process
+sudo dotnet run -c Release -- --no-output
 ```

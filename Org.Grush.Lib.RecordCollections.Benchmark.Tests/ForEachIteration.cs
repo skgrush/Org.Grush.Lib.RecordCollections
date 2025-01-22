@@ -4,16 +4,20 @@ using BenchmarkDotNet.Jobs;
 
 namespace Org.Grush.Lib.RecordCollections.Benchmark.Tests;
 
-[SimpleJob(RuntimeMoniker.Net80)]
-[SimpleJob(RuntimeMoniker.NativeAot80)]
+[MemoryDiagnoser]
+[SimpleJob(RuntimeMoniker.Net80, id: "ForEach")]
+[SimpleJob(RuntimeMoniker.NativeAot80, id: "ForEach")]
 public class ForEachIteration
 {
+  public const string Title = "`foreach` loop enumeration";
+  public const string Subtitle = "Iterate over a pre-built collection of `N` integers using `foreach`.";
+
   [Params(10, 1000, 10_000)]
   public int N { get; set; }
 
-  private List<int> _initialList;
+  private List<int> _initialList = null!;
   private RecordCollection<int> _initialRecordCollection;
-  private int[] _initialArray;
+  private int[] _initialArray = null!;
 
   [GlobalSetup]
   public void GlobalSetup()
@@ -25,7 +29,7 @@ public class ForEachIteration
   }
 
   [Benchmark]
-  public void ForEach_List()
+  public void ListOfIntegers()
   {
     foreach (var x in _initialList)
     {
@@ -34,7 +38,7 @@ public class ForEachIteration
   }
 
   [Benchmark]
-  public void ForEach_RecordCollection()
+  public void RecordCollectionOfIntegers()
   {
     foreach (var x in _initialRecordCollection)
     {
@@ -43,7 +47,7 @@ public class ForEachIteration
   }
 
   [Benchmark]
-  public void ForEach_Array()
+  public void ArrayOfIntegers()
   {
     foreach (var x in _initialArray)
     {
