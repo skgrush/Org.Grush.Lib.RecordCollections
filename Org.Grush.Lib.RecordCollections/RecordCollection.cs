@@ -58,7 +58,8 @@ public static class RecordCollection
 public readonly struct RecordCollection<T> :
   IList<T>,
   IImmutableList<T>,
-  IEquatable<RecordCollection<T>>
+  IEquatable<RecordCollection<T>>,
+  IStructuralEquatable
 {
   /// <summary>Static empty instance of a <typeparamref name="T"/> record collection.</summary>
   public static readonly RecordCollection<T> Empty = ImmutableArray<T>.Empty;
@@ -101,7 +102,7 @@ public readonly struct RecordCollection<T> :
   public RecordCollection<T> AddRange(IEnumerable<T> items)
     => _data.AddRange(items);
 
-  /// <inheritdoc cref="IImmutableList{T}.Clear"/>
+  /// <summary>Creates a new empty list of the same type.</summary>
   public RecordCollection<T> Clear()
     => Empty;
 
@@ -182,11 +183,34 @@ public readonly struct RecordCollection<T> :
 
   #region equality
   public override bool Equals([NotNullWhen(true)] object? obj)
-    => obj is RecordCollection<T> r && Equals(r);
+  {
+    return Equals(obj, EqualityComparer<T>.Default);
+  }
+
+  public bool Equals([NotNullWhen(true)] object? other, IEqualityComparer comparer)
+  {
+    if (other is null)
+      return false;
+
+    if (comparer is IEqualityComparer<T> c)
+    {
+      if (other is RecordCollection<T> r)
+        return Equals(r, c);
+
+      return (other as IEnumerable<T>)?.SequenceEqual(_data, c) ?? false;
+    }
+
+    if (other is IStructuralEquatable equatable)
+      return ((IStructuralEquatable)this).GetHashCode(comparer) == equatable.GetHashCode(comparer);
+
+    return false;
+  }
 
   /// <summary>Compares sequence-equality with any other <see cref="IImmutableList{T}"/>.</summary>
   public bool Equals(RecordCollection<T> other)
     => _data.SequenceEqual(other._data);
+  public bool Equals(RecordCollection<T> other, IEqualityComparer<T> comparer)
+    => _data.SequenceEqual(other._data, comparer);
 
   public static bool Equals(RecordCollection<T>? a, RecordCollection<T>? b)
     => RecordCollection.Equals(a, b);
@@ -194,16 +218,32 @@ public readonly struct RecordCollection<T> :
   /// <summary>
   /// Gets/caches the combined <see cref="HashCode"/> of each item in the sequence.
   /// </summary>
-  public override int GetHashCode()
+  public override int GetHashCode() => GetHashCode(null);
+
+  public int GetHashCode(IEqualityComparer<T>? comparer)
   {
+    var hash = new HashCode();
+
+    foreach (var item in _data)
+    {
+      hash.Add(item, comparer);
+    }
+    return hash.ToHashCode();
+  }
+
+  int IStructuralEquatable.GetHashCode(IEqualityComparer comparer)
+  {
+    if (comparer is IEqualityComparer<T> innerComparer)
+      return GetHashCode(innerComparer);
+
     var hash = new HashCode();
     foreach (var item in _data)
     {
-      hash.Add(item);
+      hash.Add(comparer.GetHashCode(item));
     }
-
     return hash.ToHashCode();
   }
+
   #endregion equality
 
 
