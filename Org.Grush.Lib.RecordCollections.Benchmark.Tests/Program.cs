@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
@@ -28,12 +29,20 @@ if (args.Contains(noOutputArg))
 
 var timestamp = DateTimeOffset.Now;
 
-var benchmarksDir = Path.GetFullPath(Path.Join(AppContext.BaseDirectory, "../../../Benchmarks.md"));
+var benchmarksDir = Path.GetFullPath(
+  Path.Join(
+    AppContext.BaseDirectory,
+    $"../../../Benchmarks.{GetPlatformName()}.md"
+  )
+);
 var file = new FileInfo(benchmarksDir);
 Console.WriteLine($"Will write to: {file.FullName}");
 if (file.Exists)
   file.Delete();
-await using var writer = new StreamWriter(file.FullName);
+await using var writer = new StreamWriter(file.FullName, new FileStreamOptions
+{
+  UnixCreateMode = (UnixFileMode)Convert.ToInt32("666", 8)
+});
 
 await writer.WriteAsync("# Benchmarks\n");
 writer.Write(
@@ -94,4 +103,15 @@ static (string? title, string? subtitle, string classPath) GetTitles(Summary sum
     subtitle: (string?)fields.GetValueOrDefault("Subtitle")?.GetValue(null),
     classPath: jobClass.FullName!
   );
+}
+
+static string GetPlatformName()
+{
+  if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+    return "Linux";
+  if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+    return "macOS";
+  if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+    return "Windows";
+  return "unknown";
 }
