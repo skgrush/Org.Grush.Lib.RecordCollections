@@ -1,6 +1,6 @@
 # Tests
 
-## Tests
+## Run tests and view code coverage
 
 ```sh
 rm -rf ./TestResults/ && \
