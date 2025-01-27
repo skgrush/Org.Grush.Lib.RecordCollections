@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using BenchmarkDotNet.Attributes;
@@ -44,9 +45,9 @@ public class JsonDeserializationInteger
   }
 
   [Benchmark]
-  public int[] IntArray()
+  public ImmutableArray<int> IntImmutableArray()
   {
-    int[] array = JsonSerializer.Deserialize(_intData, JsonIntegerContext.Default.Int32Array)!;
+    ImmutableArray<int> array = JsonSerializer.Deserialize(_intData, JsonIntegerContext.Default.ImmutableArrayInt32)!;
     return array;
   }
 }
@@ -54,5 +55,5 @@ public class JsonDeserializationInteger
 [JsonSourceGenerationOptions(Converters = [typeof(RecordCollectionStrictJsonConverter<int>)])]
 [JsonSerializable(typeof(RecordCollection<int>))]
 [JsonSerializable(typeof(List<int>))]
-[JsonSerializable(typeof(int[]))]
+[JsonSerializable(typeof(ImmutableArray<int>))]
 public partial class JsonIntegerContext : JsonSerializerContext;

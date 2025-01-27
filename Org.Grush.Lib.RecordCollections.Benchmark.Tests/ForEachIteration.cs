@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
@@ -17,7 +18,7 @@ public class ForEachIteration
 
   private List<int> _initialList = null!;
   private RecordCollection<int> _initialRecordCollection;
-  private int[] _initialArray = null!;
+  private ImmutableArray<int> _initialArray;
 
   [GlobalSetup]
   public void GlobalSetup()
@@ -25,7 +26,7 @@ public class ForEachIteration
     var random = new Random();
     _initialList = Enumerable.Range(0, N).Select(_ => random.Next(0, N)).ToList();
     _initialRecordCollection = _initialList.ToRecordCollection();
-    _initialArray = _initialList.ToArray();
+    _initialArray = [.._initialList];
   }
 
   [Benchmark(Baseline = true)]
@@ -47,7 +48,7 @@ public class ForEachIteration
   }
 
   [Benchmark]
-  public void ArrayOfIntegers()
+  public void ImmutableArrayOfIntegers()
   {
     foreach (var x in _initialArray)
     {

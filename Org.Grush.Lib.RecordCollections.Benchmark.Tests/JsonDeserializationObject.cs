@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using BenchmarkDotNet.Attributes;
@@ -54,9 +55,9 @@ public class JsonDeserializationObject
   }
 
   [Benchmark]
-  public NumberData[] NumberObject_Array()
+  public ImmutableArray<NumberData> NumberObject_Array()
   {
-    NumberData[] array = JsonSerializer.Deserialize(_numberData, NumberDataJsonContext.Default.MyRecordInt32DoubleStringArray)!;
+    ImmutableArray<NumberData> array = JsonSerializer.Deserialize(_numberData, NumberDataJsonContext.Default.ImmutableArrayMyRecordInt32DoubleString)!;
     return array;
   }
 }
@@ -64,5 +65,5 @@ public class JsonDeserializationObject
 [JsonSourceGenerationOptions(Converters = [typeof(RecordCollectionStrictJsonConverter<NumberData>)])]
 [JsonSerializable(typeof(RecordCollection<NumberData>))]
 [JsonSerializable(typeof(List<NumberData>))]
-[JsonSerializable(typeof(NumberData[]))]
+[JsonSerializable(typeof(ImmutableArray<NumberData>))]
 public partial class NumberDataJsonContext : JsonSerializerContext;
