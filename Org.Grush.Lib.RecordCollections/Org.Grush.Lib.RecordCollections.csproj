@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>12</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
     <PackageId>Org.Grush.Lib.RecordCollections</PackageId>
     <Version>0.0.0-local</Version>

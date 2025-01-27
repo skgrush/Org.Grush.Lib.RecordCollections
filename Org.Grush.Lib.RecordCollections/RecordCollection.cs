@@ -239,7 +239,7 @@ public readonly struct RecordCollection<T> :
     var hash = new HashCode();
     foreach (var item in _data)
     {
-      hash.Add(comparer.GetHashCode(item));
+      hash.Add(item is null ? 0 : comparer.GetHashCode(item));
     }
     return hash.ToHashCode();
   }
