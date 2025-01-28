@@ -12,7 +12,6 @@ permissions:
   contents: write
 
 env:
-  VERSION: '0.0.0-default'
   DO_PUBLISH: false
   OUTPUT_DIR: ./dist/lib
 
