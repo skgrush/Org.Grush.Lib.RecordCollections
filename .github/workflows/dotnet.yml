@@ -28,9 +28,10 @@ jobs:
         run: |
           version="${{ github.ref }}"
           echo "github.ref: $version"
-          regex="^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]"
+          regex="^refs/tags/v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]"
           if [[ "$version" =~ $regex ]]; then
-            version=${version:1}
+            version=${version:11}
+            echo "parsed semver: $version"
           else
             echo "ERROR: mismatched ref, not a semver: $version"
             exit 1
