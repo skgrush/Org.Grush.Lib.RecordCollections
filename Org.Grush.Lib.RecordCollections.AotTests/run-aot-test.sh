@@ -26,10 +26,12 @@ echo $sect
 echo "Running AotTests..."
 echo $sect
 
-"distDir/Org.Grush.Lib.RecordCollections.AotTests" --coverage
+"$distDir/Org.Grush.Lib.RecordCollections.AotTests" --coverage
 
 statusCodeOfExe=$?
 
 echo $sect
 
 echo "Exe exited with $statusCodeOfExe"
+
+exit $statusCodeOfExe
