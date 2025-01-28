@@ -1,6 +1,12 @@
 # Benchmarks
 
-To execute all benchmarks and update the [Benchmarks.md](./Benchmarks.md) file, run:
+Benchmarks comparing `RecordCollection<T>` to `List<T>` in some common record use caes.
+
+## Running the benchmarks.
+
+Requires .NET 8 SDK.
+
+To execute all benchmarks and update the Benchmarks.*.md file, run:
 
 ```sh
 # sudo allows setting high priority process
