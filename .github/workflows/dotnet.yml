@@ -65,7 +65,7 @@ jobs:
           draft: true
           tag_name: ${{ steps.get_tag.outputs.VERSION }}
           release_name: ${{ steps.get_tag.outputs.VERSION }}
-          prerelease: ${{ contains(steps.get_tag.outputs.VERSION, '-rc.') }}
+          prerelease: ${{ contains(steps.get_tag.outputs.VERSION, '-') }}
 
       - name: Upload GitHub Release (lib)
         if: ${{ DO_PUBLISH }} # TODO
