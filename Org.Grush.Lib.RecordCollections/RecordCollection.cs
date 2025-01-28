@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
@@ -64,6 +65,7 @@ public readonly struct RecordCollection<T> :
   /// <summary>Static empty instance of a <typeparamref name="T"/> record collection.</summary>
   public static readonly RecordCollection<T> Empty = ImmutableArray<T>.Empty;
 
+  [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
   private readonly ImmutableArray<T> _data;
 
   private RecordCollection(ImmutableArray<T> data) => _data = data;
@@ -82,8 +84,8 @@ public readonly struct RecordCollection<T> :
 
   /// <summary>true if-and-only-if the collection is empty.</summary>
   public bool IsEmpty => _data.IsEmpty;
-  /// <summary>Always true.</summary>
-  public bool IsReadOnly => true;
+  [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+  bool ICollection<T>.IsReadOnly => true;
   /// <summary>Number of elements in the collection.</summary>
   public int Count => _data.Length;
 
@@ -192,28 +194,7 @@ public readonly struct RecordCollection<T> :
 
   #region equality
   public override bool Equals([NotNullWhen(true)] object? obj)
-  {
-    return Equals(obj, EqualityComparer<T>.Default);
-  }
-
-  public bool Equals([NotNullWhen(true)] object? other, IEqualityComparer comparer)
-  {
-    if (other is null)
-      return false;
-
-    if (comparer is IEqualityComparer<T> c)
-    {
-      if (other is RecordCollection<T> r)
-        return Equals(r, c);
-
-      return (other as IEnumerable<T>)?.SequenceEqual(_data, c) ?? false;
-    }
-
-    if (other is IStructuralEquatable equatable)
-      return ((IStructuralEquatable)this).GetHashCode(comparer) == equatable.GetHashCode(comparer);
-
-    return false;
-  }
+    => obj is RecordCollection<T> recordCollection && Equals(recordCollection);
 
   /// <summary>Compares sequence-equality with any other <see cref="IImmutableList{T}"/>.</summary>
   public bool Equals(RecordCollection<T> other)
@@ -240,6 +221,29 @@ public readonly struct RecordCollection<T> :
     return hash.ToHashCode();
   }
 
+  #endregion equality
+
+  #region IStructuralEquatable
+
+  bool IStructuralEquatable.Equals([NotNullWhen(true)] object? other, IEqualityComparer comparer)
+  {
+    if (other is null)
+      return false;
+
+    if (comparer is IEqualityComparer<T> c)
+    {
+      if (other is RecordCollection<T> r)
+        return Equals(r, c);
+
+      return (other as IEnumerable<T>)?.SequenceEqual(_data, c) ?? false;
+    }
+
+    if (other is IStructuralEquatable equatable)
+      return ((IStructuralEquatable)this).GetHashCode(comparer) == equatable.GetHashCode(comparer);
+
+    return false;
+  }
+
   int IStructuralEquatable.GetHashCode(IEqualityComparer comparer)
   {
     if (comparer is IEqualityComparer<T> innerComparer)
@@ -253,7 +257,7 @@ public readonly struct RecordCollection<T> :
     return hash.ToHashCode();
   }
 
-  #endregion equality
+  #endregion IStructuralEquatable
 
 
   private static class ExceptionMessage

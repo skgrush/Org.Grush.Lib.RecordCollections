@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using FluentAssertions;
 using FluentAssertions.Execution;
 
 namespace Org.Grush.Lib.RecordCollections.Tests;
 
+[SuppressMessage("Usage", "xUnit1026:Theory methods should use all of their parameters")]
 public class ForImmutability
 {
   [Fact]
@@ -13,20 +15,10 @@ public class ForImmutability
 
     var collection = RecordCollection.Create([1, 2]);
 
-    collection
+    (collection as ICollection<int>)
       .IsReadOnly
       .Should()
       .BeTrue();
-
-    collection.GetType()
-      .GetMember(nameof(RecordCollection<object>.IsReadOnly))
-      .Should()
-      .SatisfyRespectively(
-        member => member
-          .As<PropertyInfo>()
-          .Should()
-          .NotBeWritable()
-      );
   }
 
   [Theory]
