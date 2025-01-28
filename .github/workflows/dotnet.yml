@@ -47,13 +47,18 @@ jobs:
       - name: Restore solution dependencies
         run: dotnet restore
       - name: Tests
-        run: dotnet test --no-restore --project ./Org.Grush.Lib.RecordCollections.Tests
+        run: dotnet test ./Org.Grush.Lib.RecordCollections.Tests --no-restore
       - name: AOT Tests
         run: ./Org.Grush.Lib.RecordCollections.AotTests/run-aot-test.sh
       - name: Pack
         run: |
           dotnet pack ./Org.Grush.Lib.RecordCollections            -p:PackageVersion=${{ steps.get_tag.outputs.VERSION }} --no-restore --output ${{ env.OUTPUT_DIR }}
           dotnet pack ./Org.Grush.Lib.RecordCollections.Newtonsoft -p:PackageVersion=${{ steps.get_tag.outputs.VERSION }} --no-restore --output ${{ env.OUTPUT_DIR }}
+
+      - name: Validate
+        run: |
+          dotnet tool install nupkg-validator
+          dotnet nupkg-validator "${{ env.OUTPUT_DIR }}/*.nupkg"
 
 ####### GitHub and NuGet artifact publishing
       - name: Initialize GitHub Release
