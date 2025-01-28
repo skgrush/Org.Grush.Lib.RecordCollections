@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
 
 thisDir="$(dirname "$0")"
-runtime=osx-arm64
+distDir="$thisDir/dist/aot-tests"
 
 sect="==============================="
 
 echo "Publishing AotTests..."
 echo $sect
 
-dotnet publish "$thisDir" --runtime $runtime --self-contained
+dotnet publish "$thisDir" \
+  --use-current-runtime \
+  --self-contained \
+  --output "$distDir"
+
 
 statusCodeOfPublish=$?
 
@@ -22,7 +26,7 @@ echo $sect
 echo "Running AotTests..."
 echo $sect
 
-"$thisDir/bin/Release/net8.0/$runtime/publish/Org.Grush.Lib.RecordCollections.AotTests" --coverage
+"distDir/Org.Grush.Lib.RecordCollections.AotTests" --coverage
 
 statusCodeOfExe=$?
 

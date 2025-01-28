@@ -52,9 +52,7 @@ jobs:
       - name: Tests
         run: dotnet test --no-restore --project ./Org.Grush.Lib.RecordCollections.Tests
       - name: AOT Tests
-        run: |
-          dotnet publish ./Org.Grush.Lib.RecordCollections.AotTests --no-restore --use-current-runtime --self-contained --output ./dist/aot-tests /p:AotMsCodeCoverageInstrumentation=true
-          ./dist/aot-tests/Org.Grush.Lib.RecordCollections.AotTests --coverage
+        run: ./Org.Grush.Lib.RecordCollections.AotTests/run-aot-test.sh
       - name: Pack
         run: |
           dotnet pack ./Org.Grush.Lib.RecordCollections            -p:PackageVersion=${{ env.VERSION }} --no-restore --output ./dist/lib
