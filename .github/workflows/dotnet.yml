@@ -21,9 +21,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: debug
+
+      - id: get_tag
+        # outputs `steps.get_tag.outputs.VERSION`
+        shell: bash
         run: |
-          echo "ref: ${{ github.ref }}"
+          version="${{ github.ref }}"
+          echo "github.ref: $version"
+          regex="^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]"
+          if [[ "$version" =~ $regex ]]; then
+            version=${version:1}
+          else
+            echo "ERROR: mismatched ref, not a semver: $version"
+            exit 1
+          fi
+          echo "::set-output name=VERSION::$version"
+
 
 ####### Setup, restore, test, and pack .NET packages
       - name: Setup .NET
@@ -38,8 +51,8 @@ jobs:
         run: ./Org.Grush.Lib.RecordCollections.AotTests/run-aot-test.sh
       - name: Pack
         run: |
-          dotnet pack ./Org.Grush.Lib.RecordCollections            -p:PackageVersion=${{ env.VERSION }} --no-restore --output ${{ env.OUTPUT_DIR }}
-          dotnet pack ./Org.Grush.Lib.RecordCollections.Newtonsoft -p:PackageVersion=${{ env.VERSION }} --no-restore --output ${{ env.OUTPUT_DIR }}
+          dotnet pack ./Org.Grush.Lib.RecordCollections            -p:PackageVersion=${{ steps.get_tag.outputs.VERSION }} --no-restore --output ${{ env.OUTPUT_DIR }}
+          dotnet pack ./Org.Grush.Lib.RecordCollections.Newtonsoft -p:PackageVersion=${{ steps.get_tag.outputs.VERSION }} --no-restore --output ${{ env.OUTPUT_DIR }}
 
 ####### GitHub and NuGet artifact publishing
       - name: Initialize GitHub Release
@@ -50,9 +63,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           draft: true
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
-          prerelease: ${{ contains(github.ref, '-rc.') }}
+          tag_name: ${{ steps.get_tag.outputs.VERSION }}
+          release_name: ${{ steps.get_tag.outputs.VERSION }}
+          prerelease: ${{ contains(steps.get_tag.outputs.VERSION, '-rc.') }}
 
       - name: Upload GitHub Release (lib)
         if: ${{ DO_PUBLISH }} # TODO
@@ -61,8 +74,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.OUTPUT_DIR }}/Org.Grush.Lib.RecordCollections.${{ github.ref }}.nupkg
-          asset_name: Org.Grush.Lib.RecordCollections.${{ github.ref }}.nupkg
+          asset_path: ${{ env.OUTPUT_DIR }}/Org.Grush.Lib.RecordCollections.${{ steps.get_tag.outputs.VERSION }}.nupkg
+          asset_name: Org.Grush.Lib.RecordCollections.${{ steps.get_tag.outputs.VERSION }}.nupkg
           asset_content_type: application/zip
 
       - name: Upload GitHub Release (Newtonsoft)
@@ -72,8 +85,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.OUTPUT_DIR }}/Org.Grush.Lib.RecordCollections.Newtonsoft.${{ github.ref }}.nupkg
-          asset_name: Org.Grush.Lib.RecordCollections.Newtonsoft.${{ github.ref }}.nupkg
+          asset_path: ${{ env.OUTPUT_DIR }}/Org.Grush.Lib.RecordCollections.Newtonsoft.${{ steps.get_tag.outputs.VERSION }}.nupkg
+          asset_name: Org.Grush.Lib.RecordCollections.Newtonsoft.${{ steps.get_tag.outputs.VERSION }}.nupkg
           asset_content_type: application/zip
 
       - name: Publish NuGet
