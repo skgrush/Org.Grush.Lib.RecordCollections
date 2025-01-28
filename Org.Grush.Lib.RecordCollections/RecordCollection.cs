@@ -72,6 +72,11 @@ public readonly struct RecordCollection<T> :
   public static implicit operator RecordCollection<T>(ImmutableArray<T> data) => new(data: data);
   public static explicit operator ImmutableArray<T>(RecordCollection<T> r) => r._data;
 
+  public ReadOnlySpan<T> AsSpan() => _data.AsSpan();
+  public ReadOnlyMemory<T> AsMemory() => _data.AsMemory();
+
+  public static bool operator==(RecordCollection<T> a, RecordCollection<T> b) => a.Equals(b);
+  public static bool operator!=(RecordCollection<T> a, RecordCollection<T> b) => !a.Equals(b);
   public static bool operator==(RecordCollection<T>? a, RecordCollection<T>? b) => Equals(a, b);
   public static bool operator!=(RecordCollection<T>? a, RecordCollection<T>? b) => !Equals(a, b);
 
@@ -88,6 +93,8 @@ public readonly struct RecordCollection<T> :
     [DoesNotReturn, Obsolete($"Will throw '{ExceptionMessage.Immutable}'")]
     set => throw new NotSupportedException(ExceptionMessage.Immutable);
   }
+
+  public ref readonly T ItemRef(int index) => ref _data.ItemRef(index);
 
   public ImmutableArray<T>.Enumerator GetEnumerator() => _data.GetEnumerator();
   IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>)_data).GetEnumerator();
@@ -164,6 +171,8 @@ public readonly struct RecordCollection<T> :
   public bool Contains(T item) => _data.Contains(item);
   /// <inheritdoc cref="ImmutableArray{T}.CopyTo(T[],int)"/>
   public void CopyTo(T[] array, int arrayIndex) => _data.CopyTo(array, arrayIndex);
+  /// <summary>Copies the contents of this collection to a <see cref="Span{T}"/>.</summary>
+  public void CopyTo(Span<T> destination) => _data.CopyTo(destination);
   #endregion IList implementation
 
   #region IImmutableList implementation
