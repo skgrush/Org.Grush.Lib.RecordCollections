@@ -57,7 +57,7 @@ jobs:
 
       - name: Validate
         run: |
-          dotnet tool install nupkg-validator
+          dotnet tool install nupkg-validator --create-manifest-if-needed
           dotnet nupkg-validator "${{ env.OUTPUT_DIR }}/*.nupkg"
 
 ####### GitHub and NuGet artifact publishing
