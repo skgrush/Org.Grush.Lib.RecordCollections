@@ -11,7 +11,6 @@ var filteredArgs = args
   .Where(arg => arg is not noOutputArg)
   .ToArray();
 
-
 Stopwatch stopwatch = Stopwatch.StartNew();
 
 stopwatch.Start();
@@ -21,6 +20,12 @@ var summaries = BenchmarkSwitcher
   .ToArray();
 stopwatch.Stop();
 
+if (summaries is [])
+{
+  Console.WriteLine("No summaries; existing early.");
+  return 0;
+}
+
 if (args.Contains(noOutputArg))
 {
   Console.WriteLine("\n\nSkipping normal markdown procedure. ");
@@ -29,18 +34,19 @@ if (args.Contains(noOutputArg))
 
 var timestamp = DateTimeOffset.Now;
 
+var benchmarksFileName = $"Benchmarks.{GetPlatformName()}.md";
 var benchmarksDir = Path.GetFullPath(
   Path.Join(
-    AppContext.BaseDirectory,
-    $"../../../Benchmarks.{GetPlatformName()}.md"
+    Directory.GetCurrentDirectory(),
+    benchmarksFileName
   )
 );
 var file = new FileInfo(benchmarksDir);
 Console.WriteLine($"Will write to: {file.FullName}");
-if (file.Exists)
-  file.Delete();
 await using var writer = new StreamWriter(file.FullName, new FileStreamOptions
 {
+  Mode = FileMode.Create,
+  Access = FileAccess.Write,
   UnixCreateMode = (UnixFileMode)Convert.ToInt32("666", 8)
 });
 
