@@ -52,8 +52,8 @@ jobs:
         run: ./Org.Grush.Lib.RecordCollections.AotTests/run-aot-test.sh
       - name: Pack
         run: |
-          dotnet pack ./Org.Grush.Lib.RecordCollections            -p:PackageVersion=${{ steps.get_tag.outputs.VERSION }} --no-restore --output ${{ env.OUTPUT_DIR }}
-          dotnet pack ./Org.Grush.Lib.RecordCollections.Newtonsoft -p:PackageVersion=${{ steps.get_tag.outputs.VERSION }} --no-restore --output ${{ env.OUTPUT_DIR }}
+          dotnet pack ./Org.Grush.Lib.RecordCollections            -p:Version=${{ steps.get_tag.outputs.VERSION }} --no-restore --output ${{ env.OUTPUT_DIR }}
+          dotnet pack ./Org.Grush.Lib.RecordCollections.Newtonsoft -p:Version=${{ steps.get_tag.outputs.VERSION }} --no-restore --output ${{ env.OUTPUT_DIR }}
 
       - name: Validate
         run: |

@@ -12,13 +12,12 @@
     <Authors>Samuel K. Grush</Authors>
     <Company>Grush.org</Company>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="/"/>
   </ItemGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="[13.0.1,)"/>
   </ItemGroup>
