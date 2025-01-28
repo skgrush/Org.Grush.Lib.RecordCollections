@@ -12,25 +12,11 @@ permissions:
   contents: write
 
 env:
-  VERSION: '1.0.0-rc.0'
+  VERSION: '0.0.0-default'
   DO_PUBLISH: false
+  OUTPUT_DIR: ./dist/lib
 
 jobs:
-#  create-release:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Initialize Release
-#        uses: actions/create-release@v1
-#        id: create_release
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        with:
-#          tag_name: ${{ github.ref }}
-#          release_name: ${{ github.ref }}
-#          prerelease: ${{ contains(github.ref, '-rc.') }}
-#    outputs:
-#      release_upload_url: ${{ steps.create_release.outputs.upload_url }}
-
   build-and-publish:
     runs-on: ubuntu-latest
     steps:
@@ -38,30 +24,72 @@ jobs:
       - name: debug
         run: |
           echo "ref: ${{ github.ref }}"
+
+####### Setup, restore, test, and pack .NET packages
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9
       - name: Restore solution dependencies
         run: dotnet restore
-#      - name: Build libraries
-#        run: |
-#          dotnet build ./Org.Grush.Lib.RecordCollections            -f net8.0 -c Release --no-restore --output ./dist/lib/net8
-#          # build newtonsoft lib and core lib
-#          dotnet build ./Org.Grush.Lib.RecordCollections.Newtonsoft           -c Release --no-restore --output ./dist/lib/nets
       - name: Tests
         run: dotnet test --no-restore --project ./Org.Grush.Lib.RecordCollections.Tests
       - name: AOT Tests
         run: ./Org.Grush.Lib.RecordCollections.AotTests/run-aot-test.sh
       - name: Pack
         run: |
-          dotnet pack ./Org.Grush.Lib.RecordCollections            -p:PackageVersion=${{ env.VERSION }} --no-restore --output ./dist/lib
-          dotnet pack ./Org.Grush.Lib.RecordCollections.Newtonsoft -p:PackageVersion=${{ env.VERSION }} --no-restore --output ./dist/lib
+          dotnet pack ./Org.Grush.Lib.RecordCollections            -p:PackageVersion=${{ env.VERSION }} --no-restore --output ${{ env.OUTPUT_DIR }}
+          dotnet pack ./Org.Grush.Lib.RecordCollections.Newtonsoft -p:PackageVersion=${{ env.VERSION }} --no-restore --output ${{ env.OUTPUT_DIR }}
 
-      - name: Publish
+####### GitHub and NuGet artifact publishing
+      - name: Initialize GitHub Release
+        if: ${{ DO_PUBLISH }} # TODO
+        uses: actions/create-release@v1
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          draft: true
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          prerelease: ${{ contains(github.ref, '-rc.') }}
+
+      - name: Upload GitHub Release (lib)
+        if: ${{ DO_PUBLISH }} # TODO
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.OUTPUT_DIR }}/Org.Grush.Lib.RecordCollections.${{ github.ref }}.nupkg
+          asset_name: Org.Grush.Lib.RecordCollections.${{ github.ref }}.nupkg
+          asset_content_type: application/zip
+
+      - name: Upload GitHub Release (Newtonsoft)
+        if: ${{ DO_PUBLISH }} # TODO
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.OUTPUT_DIR }}/Org.Grush.Lib.RecordCollections.Newtonsoft.${{ github.ref }}.nupkg
+          asset_name: Org.Grush.Lib.RecordCollections.Newtonsoft.${{ github.ref }}.nupkg
+          asset_content_type: application/zip
+
+      - name: Publish NuGet
         if: ${{ DO_PUBLISH }} # TODO
         run: |
           dotnet nuget push ./dist/lib/*.nupkg
+
+      - name: Publish GitHub Release
+        uses: eregon/publish-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          release_id: ${{ steps.create_release.outputs.id }}
+
+    outputs:
+      release_upload_url: ${{ steps.create_release.outputs.upload_url }}
 #  publish:
 #    needs: [ create-release ]
 #    runs-on: ubuntu-latest
