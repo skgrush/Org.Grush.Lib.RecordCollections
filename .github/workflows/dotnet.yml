@@ -58,7 +58,9 @@ jobs:
       - name: Validate
         run: |
           dotnet tool install nupkg-validator --create-manifest-if-needed
-          dotnet nupkg-validator "${{ env.OUTPUT_DIR }}/*.nupkg"
+          # you're supposed to be able to *.nupkg match but it throws for me
+          dotnet nupkg-validator "${{ env.OUTPUT_DIR }}/Org.Grush.Lib.RecordCollections.${{ steps.get_tag.outputs.VERSION }}.nupkg"
+          dotnet nupkg-validator "${{ env.OUTPUT_DIR }}/Org.Grush.Lib.RecordCollections.Newtonsoft.${{ steps.get_tag.outputs.VERSION }}.nupkg"
 
 ####### GitHub and NuGet artifact publishing
       - name: Initialize GitHub Release
