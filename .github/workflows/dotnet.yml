@@ -7,12 +7,14 @@ on:
   push:
     tags:
       - "v*"
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
 
 env:
-  DO_PUBLISH: false
   OUTPUT_DIR: ./dist/lib
 
 jobs:
@@ -64,7 +66,7 @@ jobs:
 
 ####### GitHub and NuGet artifact publishing
       - name: Initialize GitHub Release
-        if: ${{ env.DO_PUBLISH }} # TODO
+        if: ${{ github.event_name != 'pull_request' }}
         uses: actions/create-release@v1
         id: create_release
         env:
@@ -76,7 +78,7 @@ jobs:
           prerelease: ${{ contains(steps.get_tag.outputs.VERSION, '-') }}
 
       - name: Upload GitHub Release (lib)
-        if: ${{ env.DO_PUBLISH }} # TODO
+        if: ${{ github.event_name != 'pull_request' }}
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -87,7 +89,7 @@ jobs:
           asset_content_type: application/zip
 
       - name: Upload GitHub Release (Newtonsoft)
-        if: ${{ env.DO_PUBLISH }} # TODO
+        if: ${{ github.event_name != 'pull_request' }}
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -98,7 +100,7 @@ jobs:
           asset_content_type: application/zip
 
       - name: Publish NuGet
-        if: ${{ env.DO_PUBLISH }} # TODO
+        if: ${{ github.event_name != 'pull_request' }}
         run: |
           dotnet nuget push "${{ env.OUTPUT_DIR }}/Org.Grush.Lib.RecordCollections.${{ steps.get_tag.outputs.VERSION }}.nupkg"            --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
           dotnet nuget push "${{ env.OUTPUT_DIR }}/Org.Grush.Lib.RecordCollections.Newtonsoft.${{ steps.get_tag.outputs.VERSION }}.nupkg" --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate

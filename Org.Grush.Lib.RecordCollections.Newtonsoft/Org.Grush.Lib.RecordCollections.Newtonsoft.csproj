@@ -12,6 +12,7 @@
     <Authors>Samuel K. Grush</Authors>
     <Company>Grush.org</Company>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
