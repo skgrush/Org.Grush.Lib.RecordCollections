@@ -1,10 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
-namespace Org.Grush.Lib.RecordCollections {
+namespace Org.Grush.Lib.RecordCollections;
 
 public static class RecordCollection
 {
@@ -92,7 +91,7 @@ public readonly struct RecordCollection<T> :
   public T this[int index]
   {
     get => _data[index];
-    [DoesNotReturn, Obsolete($"Will throw '{ExceptionMessage.Immutable}'")]
+    [Obsolete($"Will throw '{ExceptionMessage.Immutable}'", error: true)]
     set => throw new NotSupportedException(ExceptionMessage.Immutable);
   }
 
@@ -193,7 +192,11 @@ public readonly struct RecordCollection<T> :
   #endregion IImmutableList implementation
 
   #region equality
-  public override bool Equals([NotNullWhen(true)] object? obj)
+  public override bool Equals(
+#if !NETSTANDARD2_0
+    [System.Diagnostics.CodeAnalysis.NotNullWhen(true)]
+#endif
+    object? obj)
     => obj is RecordCollection<T> recordCollection && Equals(recordCollection);
 
   /// <summary>Compares sequence-equality with any other <see cref="IImmutableList{T}"/>.</summary>
@@ -225,7 +228,11 @@ public readonly struct RecordCollection<T> :
 
   #region IStructuralEquatable
 
-  bool IStructuralEquatable.Equals([NotNullWhen(true)] object? other, IEqualityComparer comparer)
+  bool IStructuralEquatable.Equals(
+#if !NETSTANDARD2_0
+    [System.Diagnostics.CodeAnalysis.NotNullWhen(true)]
+#endif
+    object? other, IEqualityComparer comparer)
   {
     if (other is null)
       return false;
@@ -264,5 +271,4 @@ public readonly struct RecordCollection<T> :
   {
     public const string Immutable = nameof(RecordCollection) + " is immutable.";
   }
-}
 }
