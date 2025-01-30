@@ -27,8 +27,8 @@
     <PackageReference Include="System.Text.Json" Version="[8.0.5, 10.0)"/>
   </ItemGroup>
 
-<!--  <ItemGroup Condition="$(TargetFramework) == 'netstandard2.0'">-->
-<!--        <PackageReference Include="Microsoft.Bcl.HashCode" Version=""/>-->
-<!--  </ItemGroup>-->
+  <ItemGroup Condition="$(TargetFramework) == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.Bcl.HashCode" Version="[1.0.0,)"/>
+  </ItemGroup>
 
 </Project>
