@@ -28,8 +28,14 @@ jobs:
         # outputs `steps.get_tag.outputs.VERSION`
         shell: bash
         run: |
+          if [[ ${{ github.event_name == 'pull_request' }} ]]; then
+            echo "Is a PR, not a tag; setting version envvar to 0.0.0-PR"
+            echo "::set-output name=VERSION::0.0.0-PR"
+            exit 0
+          fi
           version="${{ github.ref }}"
           echo "github.ref: $version"
+
           regex="^refs/tags/v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]"
           if [[ "$version" =~ $regex ]]; then
             version=${version:11}
@@ -106,6 +112,7 @@ jobs:
           dotnet nuget push "${{ env.OUTPUT_DIR }}/Org.Grush.Lib.RecordCollections.Newtonsoft.${{ steps.get_tag.outputs.VERSION }}.nupkg" --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Publish GitHub Release
+        if: ${{ github.event_name != 'pull_request' }}
         uses: eregon/publish-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
