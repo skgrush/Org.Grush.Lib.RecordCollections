@@ -2,6 +2,9 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text.Json.Serialization;
+#if !NETSTANDARD2_0
+using System.Diagnostics.CodeAnalysis;
+#endif
 
 namespace Org.Grush.Lib.RecordCollections;
 
@@ -193,11 +196,8 @@ public readonly struct RecordCollection<T> :
 
   #region equality
   public override bool Equals(
-#if !NETSTANDARD2_0
-    [System.Diagnostics.CodeAnalysis.NotNullWhen(true)]
-#endif
-    object? obj)
-    => obj is RecordCollection<T> recordCollection && Equals(recordCollection);
+    [NotNullWhen(true)] object? obj
+  ) => obj is RecordCollection<T> recordCollection && Equals(recordCollection);
 
   /// <summary>Compares sequence-equality with any other <see cref="IImmutableList{T}"/>.</summary>
   public bool Equals(RecordCollection<T> other)
@@ -229,10 +229,9 @@ public readonly struct RecordCollection<T> :
   #region IStructuralEquatable
 
   bool IStructuralEquatable.Equals(
-#if !NETSTANDARD2_0
-    [System.Diagnostics.CodeAnalysis.NotNullWhen(true)]
-#endif
-    object? other, IEqualityComparer comparer)
+    [NotNullWhen(true)] object? other,
+    IEqualityComparer comparer
+  )
   {
     if (other is null)
       return false;
