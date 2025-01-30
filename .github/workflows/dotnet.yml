@@ -28,7 +28,7 @@ jobs:
         # outputs `steps.get_tag.outputs.VERSION`
         shell: bash
         run: |
-          if [[ ${{ github.event_name == 'pull_request' }} ]]; then
+          if [[ '${{ github.event_name }}' == 'pull_request' ]] ; then
             echo "Is a PR, not a tag; setting version envvar to 0.0.0-PR"
             echo "::set-output name=VERSION::0.0.0-PR"
             exit 0
