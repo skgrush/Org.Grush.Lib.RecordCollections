@@ -2,6 +2,13 @@
 
 A read-only, equatable, de/serializable, generic collection type for use in record classes.
 
+TOC:
+* [Initialization](#initialization)
+* [Equating](#equating)
+* [Serialization](#serialization)
+* [Deserialization](#deserialization)
+* [Target versions](#target-versions)
+
 ## Initialization
 
 `RecordCollection`s can be initialized using the new collection expression approach:
@@ -135,3 +142,20 @@ PairOfLists? pair2 = JsonConvert.DeserializeObject<PairOfLists>(jsonData, new Js
 
 record PairOfLists(RecordCollection<string> Strings, RecordCollection<int> Ints);
 ```
+
+
+## Target Versions
+
+Features differ subtly between target versions.
+
+.NET 8+ version has no dependencies or shims,
+is AOT-compilation compatible,
+and supports the collection builder syntax.
+
+.NET Standard 2.1 version requires two System NuGet packages, `System.Collections.Immutable` and `System.Text.Json`,
+but supports .NET 5–7.
+
+.NET Standard 2.0 version requires the above System NuGet packages,
+loses some nullability checks,
+and internally uses a shim for the `HashCode` struct,
+but supports a significantly broader set of .NET versions including 4.6.1–4.8, Mono 5.4, and UWP.
