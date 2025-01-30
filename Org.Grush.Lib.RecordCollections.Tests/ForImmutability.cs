@@ -37,6 +37,7 @@ public class ForImmutability
 
   private class UnsupportedMethods : TheoryData<string, Action>
   {
+    [Obsolete("Allow testing obsolete methods")]
     public UnsupportedMethods()
     {
       RecordCollection<long> collection = [];
@@ -57,10 +58,8 @@ public class ForImmutability
           GetDefaultCallOfMethod(collection, fn.Method)
         );
       }
-
-#pragma warning disable CS0618 // Type or member is obsolete
+      
       Add("RecordCollection<T>[0] =", (() => collection[0] = 0));
-#pragma warning restore CS0618 // Type or member is obsolete
     }
   }
 

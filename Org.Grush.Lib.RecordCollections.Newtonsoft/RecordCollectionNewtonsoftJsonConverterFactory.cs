@@ -4,9 +4,9 @@ using Newtonsoft.Json;
 
 namespace Org.Grush.Lib.RecordCollections.Newtonsoft;
 
-public class RecordCollectionNewtonsoftJsonConverterFactory : JsonConverter
+public class RecordCollectionNewtonsoftJsonConverterFactory(bool useConverterCache = true) : JsonConverter
 {
-  private static readonly ConcurrentDictionary<string, JsonConverter> ConverterCache = new();
+  private static readonly ConcurrentDictionary<Type, JsonConverter> ConverterCache = new();
 
   public override bool CanWrite => false;
 
@@ -14,29 +14,31 @@ public class RecordCollectionNewtonsoftJsonConverterFactory : JsonConverter
     => typeToConvert.IsGenericType &&
        typeToConvert.GetGenericTypeDefinition() == typeof(RecordCollection<>);
 
-  public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) => throw new NotImplementedException();
+  public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) => throw new NotSupportedException();
 
   public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
   {
-    var converter = ConverterCache.GetOrAdd(
-      key: objectType.FullName,
-      valueFactory: static (_, capturedObjectType) =>
-      {
-        Type elementType = capturedObjectType.GetGenericArguments()[0];
-        var converter = (JsonConverter)Activator.CreateInstance(
-          typeof(RecordCollectionNewtonsoftJsonConverter<>).MakeGenericType([
-            elementType
-          ]),
-          BindingFlags.Instance | BindingFlags.Public,
-          binder: null,
-          args: [],
-          culture: null);
+    if (!useConverterCache)
+      return GetConverter(objectType);
 
-        return converter;
-      },
-      factoryArgument: objectType
+    var converter = ConverterCache.GetOrAdd(
+      key: objectType,
+      valueFactory: GetConverter
     );
 
     return converter.ReadJson(reader, objectType, existingValue, serializer);
+  }
+
+  private static JsonConverter GetConverter(Type capturedObjectType)
+  {
+    Type elementType = capturedObjectType.GetGenericArguments()[0];
+    return (JsonConverter)Activator.CreateInstance(
+      typeof(RecordCollectionNewtonsoftJsonConverter<>).MakeGenericType(
+        elementType
+      ),
+      BindingFlags.Instance | BindingFlags.Public,
+      binder: null,
+      args: [],
+      culture: null)!; // this can't be null
   }
 }
