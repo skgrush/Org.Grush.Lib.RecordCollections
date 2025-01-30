@@ -241,7 +241,8 @@ public readonly struct RecordCollection<T> :
       if (other is RecordCollection<T> r)
         return Equals(r, c);
 
-      return (other as IEnumerable<T>)?.SequenceEqual(_data, c) ?? false;
+      if (other is IEnumerable<T> e)
+        return e.SequenceEqual(_data, c);
     }
 
     if (other is IStructuralEquatable equatable)
