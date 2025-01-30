@@ -39,6 +39,6 @@ public class RecordCollectionNewtonsoftJsonConverterFactory(bool useConverterCac
       BindingFlags.Instance | BindingFlags.Public,
       binder: null,
       args: [],
-      culture: null);
+      culture: null)!; // this can't be null
   }
 }
