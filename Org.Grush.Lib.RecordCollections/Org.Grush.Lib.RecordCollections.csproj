@@ -8,11 +8,16 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
     <PackageId>Org.Grush.Lib.RecordCollections</PackageId>
+    <Description>A read-only, equatable, de/serializable, generic collection type for use with records.</Description>
+    <PackageTags>immutable record collection</PackageTags>
     <Version>0.0.0-local</Version>
     <Authors>Samuel K. Grush</Authors>
     <Company>Grush.org</Company>
+    <Copyright>Copyright (c) Samuel K. Grush 2025</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
 
     <!--    <PublishAot Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">true</PublishAot>-->
     <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">true</IsAotCompatible>
@@ -20,6 +25,8 @@
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="/"/>
+
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
   </ItemGroup>
 
   <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'netstandard2.0'))">
