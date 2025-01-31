@@ -113,6 +113,9 @@ Newtonsoft deserialization is supported using the supplementary `Org.Grush.Lib.R
 either with the generic `RecordCollectionNewtonsoftJsonConverterFactory`,
 or if a specific type is known then `RecordCollectionNewtonsoftJsonConverter<T>` converter can be used directly.
 
+See the [NuGet package](https://www.nuget.org/packages/Org.Grush.Lib.RecordCollections.Newtonsoft)
+or the [GitHub source](https://github.com/skgrush/Org.Grush.Lib.RecordCollections/tree/main/Org.Grush.Lib.RecordCollections.Newtonsoft).
+
 ```cs
 using Newtonsoft.Json;
 using Org.Grush.Lib.RecordCollections.Newtonsoft;
