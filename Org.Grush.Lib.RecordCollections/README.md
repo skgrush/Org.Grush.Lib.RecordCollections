@@ -52,8 +52,10 @@ MyRecord a = new("Joseph", ["Joe", "Joey"]);
 MyRecord b = new("Joseph", ["Joe", "Joey"]);
 
 var areEqual = a.Equals(b);
+var areEqualsSign = a == b;
 
 areEqual.Should().BeTrue();
+areEqualsSign.Should().BeTrue();
 ```
 
 additionally, `RecordCollection<T>`s can be used in hash structures like `HashSet`s:
