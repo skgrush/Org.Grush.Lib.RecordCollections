@@ -158,7 +158,6 @@ and supports the collection builder syntax.
 .NET Standard 2.1 version requires two System NuGet packages, `System.Collections.Immutable` and `System.Text.Json`,
 but supports .NET 5–7.
 
-.NET Standard 2.0 version requires the above System NuGet packages,
+.NET Standard 2.0 version requires the above System NuGet packages and also the `Microsoft.Bcl.HashCode` NuGet package,
 loses some nullability checks,
-and internally uses a shim for the `HashCode` struct,
 but supports a significantly broader set of .NET versions including 4.6.1–4.8, Mono 5.4, and UWP.
