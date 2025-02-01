@@ -184,6 +184,26 @@ public readonly struct RecordCollection<T> :
     return hash.ToHashCode();
   }
 
+  /// <summary>
+  /// TODO: Experimental
+  /// </summary>
+  private static bool Equals<TOther>(RecordCollection<T> a, IEnumerable<TOther> other, IEqualityComparer comparer)
+  {
+    var myEnumerator = a._data.GetEnumerator();
+    var otherEnumerator = other.GetEnumerator();
+    using var otherEnumerator1 = otherEnumerator as IDisposable;
+
+    bool myStillGoing;
+    bool otherStillGoing = true;
+    while ((myStillGoing = myEnumerator.MoveNext()) && (otherStillGoing = otherEnumerator.MoveNext()))
+    {
+      if (!comparer.Equals(myEnumerator.Current, otherEnumerator.Current))
+        return false;
+    }
+
+    return !myStillGoing && !otherStillGoing;
+  }
+
   #endregion equality
 
   #region IStructuralEquatable
@@ -207,6 +227,9 @@ public readonly struct RecordCollection<T> :
 
     if (other is IStructuralEquatable equatable)
       return ((IStructuralEquatable)this).GetHashCode(comparer) == equatable.GetHashCode(comparer);
+
+    if (other is IEnumerable enumerable)
+      return Equals(this, enumerable.Cast<object>(), comparer);
 
     return false;
   }
