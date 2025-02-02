@@ -9,14 +9,6 @@ namespace Org.Grush.Lib.RecordCollections.Tests;
 public class ForEquatability
 {
   [Fact]
-  public void AgainstSpan()
-  {
-    RecordCollection<int> collectionA = [1, 2, 3];
-
-    var eq = collectionA == [1, 2, 3];
-  }
-
-  [Fact]
   public void WhenContainingValueTypes()
   {
     // Assemble

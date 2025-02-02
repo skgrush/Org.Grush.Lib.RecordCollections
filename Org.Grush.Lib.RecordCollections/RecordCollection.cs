@@ -235,19 +235,20 @@ public readonly struct RecordCollection<T> :
     if (other is null)
       return false;
 
-    if (comparer is IEqualityComparer<T> comparerOfT && other is IEnumerable<T> otherOfT)
+    if (other is IEnumerable<T> otherOfT)
     {
+      if (comparer is not IEqualityComparer<T> comparerOfT)
+        return SequenceEquals(otherOfT, comparer);
+
       if (other is RecordCollection<T> r)
         return _data.SequenceEqual(r._data, comparerOfT);
 
       return _data.SequenceEqual(otherOfT, comparerOfT);
+
     }
 
     if (other is IStructuralEquatable equatable)
       return ((IStructuralEquatable)this).GetHashCode(comparer) == equatable.GetHashCode(comparer);
-
-    if (other is IEnumerable<T> enumerableOfT)
-      return SequenceEquals(enumerableOfT, comparer);
 
     // TODO: handle IEnumerable<Other> better
     if (other is IEnumerable enumerable)
