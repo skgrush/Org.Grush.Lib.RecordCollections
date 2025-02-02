@@ -184,24 +184,43 @@ public readonly struct RecordCollection<T> :
     return hash.ToHashCode();
   }
 
-  /// <summary>
-  /// TODO: Experimental
-  /// </summary>
-  private static bool Equals<TOther>(RecordCollection<T> a, IEnumerable<TOther> other, IEqualityComparer comparer)
+  public bool SequenceEquals<TOther>(IReadOnlyList<TOther> otherList, IEqualityComparer comparer)
   {
-    var myEnumerator = a._data.GetEnumerator();
-    var otherEnumerator = other.GetEnumerator();
-    using var otherEnumerator1 = otherEnumerator as IDisposable;
+    if (Count != otherList.Count)
+      return false;
 
-    bool myStillGoing;
-    bool otherStillGoing = true;
-    while ((myStillGoing = myEnumerator.MoveNext()) && (otherStillGoing = otherEnumerator.MoveNext()))
+    for (int i = 0; i < Count; i++)
     {
-      if (!comparer.Equals(myEnumerator.Current, otherEnumerator.Current))
+      if (!comparer.Equals(this[i], otherList[i]))
         return false;
     }
 
-    return !myStillGoing && !otherStillGoing;
+    return true;
+  }
+
+  public bool SequenceEquals<TOther>(IEnumerable<TOther> otherEnumerable, IEqualityComparer comparer)
+  {
+    switch (otherEnumerable)
+    {
+      case IReadOnlyList<TOther> readOnlyList:
+        return SequenceEquals(readOnlyList, comparer);
+      case IReadOnlyCollection<TOther> coll when Count != coll.Count:
+        return false;
+    }
+
+    int i = 0;
+    foreach (TOther item in otherEnumerable)
+    {
+      if (i == Count)
+        return false;
+
+      if (!comparer.Equals(_data[i], item))
+        return false;
+
+      ++i;
+    }
+
+    return i == Count;
   }
 
   #endregion equality
@@ -216,20 +235,23 @@ public readonly struct RecordCollection<T> :
     if (other is null)
       return false;
 
-    if (comparer is IEqualityComparer<T> c)
+    if (comparer is IEqualityComparer<T> comparerOfT && other is IEnumerable<T> otherOfT)
     {
       if (other is RecordCollection<T> r)
-        return Equals(r, c);
+        return _data.SequenceEqual(r._data, comparerOfT);
 
-      if (other is IEnumerable<T> e)
-        return e.SequenceEqual(_data, c);
+      return _data.SequenceEqual(otherOfT, comparerOfT);
     }
 
     if (other is IStructuralEquatable equatable)
       return ((IStructuralEquatable)this).GetHashCode(comparer) == equatable.GetHashCode(comparer);
 
+    if (other is IEnumerable<T> enumerableOfT)
+      return SequenceEquals(enumerableOfT, comparer);
+
+    // TODO: handle IEnumerable<Other> better
     if (other is IEnumerable enumerable)
-      return Equals(this, enumerable.Cast<object>(), comparer);
+      return SequenceEquals(enumerable.Cast<object>(), comparer);
 
     return false;
   }
