@@ -22,6 +22,36 @@ public class ForImmutability
       .BeTrue();
   }
 
+  [Fact]
+  public void ItemRefIsReadOnly()
+  {
+    var collection = RecordCollection.Create([
+      (Key: 1, Prop: "A"),
+      (Key: 2, Prop: "B"),
+    ]);
+
+    collection[0].Should().NotBeSameAs(collection[0]);
+
+    unsafe
+    {
+      fixed ((int Key, string Prop)* pa = &collection.ItemRef(0), pb = &collection.ItemRef(0))
+      {
+        (pa == pb).Should().BeTrue();
+      }
+    }
+  }
+
+  [Fact]
+  public void AsSpanAndAsMemoryAreSame()
+  {
+    RecordCollection<string> collection = ["a", "b"];
+
+    var span = collection.AsSpan();
+    var mem = collection.AsMemory();
+
+    (mem.Span == span).Should().BeTrue();
+  }
+
   [Theory]
   [ClassData(typeof(UnsupportedMethods))]
   public void AndThrowForUnsupportedMethods(string name, Action action)

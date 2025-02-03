@@ -12,7 +12,7 @@ namespace Org.Grush.Lib.RecordCollections;
 internal interface IRecordCollection : IList, IStructuralEquatable
 {
   [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-  internal ref readonly IStructuralEquatable InnerData { get; }
+  internal IStructuralEquatable InnerData { get; }
 }
 
 /// <summary>
