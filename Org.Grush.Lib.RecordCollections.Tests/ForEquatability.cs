@@ -31,9 +31,13 @@ public class ForEquatability
 
     // Act
     var areEqual = Equals(collectionA, collectionB);
+    var areEqEq = collectionA == collectionB;
+    var arentEqEq = collectionA != collectionB;
 
     // Assert
     areEqual.Should().BeTrue();
+    areEqEq.Should().BeTrue();
+    arentEqEq.Should().BeFalse();
   }
 
   [Theory]
@@ -123,7 +127,41 @@ public class ForEquatability
     areEqual.Should().BeTrue();
   }
 
-  public class ViaStaticMethod
+  [Fact]
+  public static void EqualsFailsForWrongType()
+  {
+    RecordCollection<int> collectionA = [1, 2, 3];
+    RecordCollection<long> collectionB = [1, 2, 3];
+
+    // Act
+    // ReSharper disable once SuspiciousTypeConversion.Global
+    var areEqual = collectionA.Equals(collectionB);
+
+    // Assert
+    areEqual.Should().BeFalse();
+  }
+
+  private class RoundingComparer : IEqualityComparer<double>
+  {
+    public bool Equals(double x, double y)
+      => Math.Round(x) == Math.Round(y);
+
+    public int GetHashCode(double obj)
+      => (int)Math.Round(obj);
+  }
+
+  [Fact]
+  public static void EqualsWithComparer()
+  {
+    RecordCollection<double> collectionA = [1.1, 2.2, 3.3];
+    RecordCollection<double> collectionB = [0.9, 1.9, 2.9];
+
+    var areEqual = collectionA.Equals(collectionB, new RoundingComparer());
+
+    areEqual.Should().BeTrue();
+  }
+
+  public static class ViaStaticMethod
   {
     [Theory]
     [InlineData(true)]
@@ -329,9 +367,9 @@ public class ForEquatability
 
       var expectedHash = HashCode.Combine(1, 2, 3, (int?)null);
 
-      var comparerMock = MakeComparer(null);
+      var comparerMock = MakeComparer();
       comparerMock.Setup(c => c.GetHashCode(It.IsIn(1, 2, 3))).Returns((int v) => v.GetHashCode());
-      comparerMock.Setup(c => c.GetHashCode((int?)null)).Returns(0);
+      comparerMock.Setup(c => c.GetHashCode(null!)).Returns(0);
 
       var actualHashCode = ((IStructuralEquatable)collectionA).GetHashCode(comparerMock.Object);
 
@@ -340,13 +378,13 @@ public class ForEquatability
     }
 
     [Fact]
-    public void GetHashCode_ForComparerNotOfT_ForReferenceType()
+    public static void GetHashCode_ForComparerNotOfT_ForReferenceType()
     {
       RecordCollection<string?> collectionA = ["a", "b", "c", null];
 
       var expectedHash = HashCode.Combine("a", "b", "c", 0);
 
-      var comparerMock = MakeComparer(null);
+      var comparerMock = MakeComparer();
       comparerMock.Setup(c => c.GetHashCode(It.IsIn("a", "b", "c"))).Returns((string v) => v.GetHashCode());
 
       var actualHashCode = ((IStructuralEquatable)collectionA).GetHashCode(comparerMock.Object);
@@ -355,44 +393,22 @@ public class ForEquatability
       comparerMock.VerifyAll();
     }
 
-    private Mock<IEqualityComparer> MakeComparer(IEqualityComparer? basedOn)
+    private static Mock<IEqualityComparer> MakeComparer()
     {
       var mock = new Mock<IEqualityComparer>(MockBehavior.Strict);
-
-      if (basedOn is not null)
-      {
-        mock
-          .Setup(c => c.Equals(It.IsAny<object>(), It.IsAny<object>()))
-          .Callback((object a, object b) => basedOn.Equals(a, b));
-
-        mock
-          .Setup(c => c.GetHashCode(It.IsAny<object>()))
-          .Callback((object a) => basedOn.GetHashCode(a));
-      }
 
       return mock;
     }
 
-    private Mock<IEqualityComparer<T>> MakeComparerOf<T>(IEqualityComparer<T>? basedOnOfT, IEqualityComparer? basedOn)
+    private static Mock<IEqualityComparer<T>> MakeComparerOf<T>()
     {
-      var mock = MakeComparer(basedOn);
+      var mock = MakeComparer();
       var comparerOfT = mock.As<IEqualityComparer<T>>();
-
-      if (basedOnOfT is not null)
-      {
-        comparerOfT
-          .Setup(c => c.Equals(It.IsAny<T>(), It.IsAny<T>()))
-          .Callback((T? a, T? b) => basedOnOfT.Equals(a, b));
-
-        comparerOfT
-          .Setup(c => c.GetHashCode(It.IsAny<T>()!))
-          .Callback((T a) => basedOnOfT.GetHashCode(a));
-      }
 
       return comparerOfT;
     }
 
-    private Mock<IEqualityComparer> MakeAlwaysTrueComparer()
+    private static Mock<IEqualityComparer> MakeAlwaysTrueComparer()
     {
       var mock = new Mock<IEqualityComparer>(MockBehavior.Strict);
       mock.Setup(x => x.Equals(It.IsAny<object>(), It.IsAny<object>())).Returns(true);
