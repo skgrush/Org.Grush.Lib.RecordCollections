@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using FluentAssertions;
@@ -49,6 +50,12 @@ public class ForImmutability
         ((ICollection<long>)collection).Remove,
         ((IList<long>)collection).Insert,
         ((IList<long>)collection).RemoveAt,
+        ((IList)collection).Clear,
+        ((IList)collection).RemoveAt,
+        ((IList)collection).Add,
+        ((ICollection)collection).CopyTo,
+        ((IList)collection).Insert,
+        ((IList)collection).Remove,
       };
 
       foreach (var fn in functions)
@@ -58,8 +65,9 @@ public class ForImmutability
           GetDefaultCallOfMethod(collection, fn.Method)
         );
       }
-      
+
       Add("RecordCollection<T>[0] =", (() => collection[0] = 0));
+      Add("((IList)RecordCollection<T>)[0] =", () => ((IList)collection)[0] = 0);
     }
   }
 
