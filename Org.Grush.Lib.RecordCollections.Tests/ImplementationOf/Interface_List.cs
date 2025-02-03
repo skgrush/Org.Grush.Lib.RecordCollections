@@ -3,14 +3,14 @@ using FluentAssertions;
 
 namespace Org.Grush.Lib.RecordCollections.Tests.ImplementationOf;
 
-public class Interface_List
+public static class Interface_List
 {
-  public class Generic
+  public static class Generic
   {
     record SomeRecord(int Int, string String);
 
     [Fact]
-    public void IndexOf()
+    public static void IndexOf()
     {
       RecordCollection<SomeRecord> collection =
       [
@@ -26,7 +26,7 @@ public class Interface_List
     }
 
     [Fact]
-    public void Contains()
+    public static void Contains()
     {
       RecordCollection<SomeRecord> collection =
       [
@@ -42,7 +42,7 @@ public class Interface_List
     }
 
     [Fact]
-    public void CopyTo_Span()
+    public static void CopyTo_Span()
     {
       RecordCollection<string> collection = ["a", "b", "c"];
       var targetSpan = new Span<string>(new string[3]);
@@ -56,13 +56,13 @@ public class Interface_List
     }
   }
 
-  public class NonGeneric
+  public static class NonGeneric
   {
     static readonly RecordCollection<string> collection = ["a", "b", "c"];
     static IList CollectionAsIList => collection;
 
     [Fact]
-    public void GetByIndex()
+    public static void GetByIndex()
     {
       object? item1 = CollectionAsIList[1];
 
@@ -70,7 +70,7 @@ public class Interface_List
     }
 
     [Fact]
-    public void Contains()
+    public static void Contains()
     {
       var contains = CollectionAsIList.Contains("b");
 
@@ -78,7 +78,7 @@ public class Interface_List
     }
 
     [Fact]
-    public void Contains_FalseWhenMissing()
+    public static void Contains_FalseWhenMissing()
     {
       var contains = CollectionAsIList.Contains("Z");
 
@@ -86,7 +86,7 @@ public class Interface_List
     }
 
     [Fact]
-    public void Contains_FalseForWrongType()
+    public static void Contains_FalseForWrongType()
     {
       var contains = CollectionAsIList.Contains(CollectionAsIList);
 
@@ -94,7 +94,7 @@ public class Interface_List
     }
 
     [Fact]
-    public void IndexOf()
+    public static void IndexOf()
     {
       int foundIndex = CollectionAsIList.IndexOf("b");
 
@@ -102,7 +102,7 @@ public class Interface_List
     }
 
     [Fact]
-    public void IndexOf_Negative1WhenMissing()
+    public static void IndexOf_Negative1WhenMissing()
     {
       int foundIndex = CollectionAsIList.IndexOf("Z");
 
@@ -110,7 +110,7 @@ public class Interface_List
     }
 
     [Fact]
-    public void IndexOf_Negative1WhenMissingNull()
+    public static void IndexOf_Negative1WhenMissingNull()
     {
       int foundIndex = CollectionAsIList.IndexOf(null);
 
@@ -118,7 +118,7 @@ public class Interface_List
     }
 
     [Fact]
-    public void IndexOf_Negative1ForWrongType()
+    public static void IndexOf_Negative1ForWrongType()
     {
       int foundIndex = CollectionAsIList.IndexOf(CollectionAsIList);
 
@@ -126,7 +126,7 @@ public class Interface_List
     }
 
     [Fact]
-    public void ConstantProperties()
+    public static void ConstantProperties()
     {
       CollectionAsIList.IsFixedSize.Should().BeTrue();
       CollectionAsIList.IsReadOnly.Should().BeTrue();

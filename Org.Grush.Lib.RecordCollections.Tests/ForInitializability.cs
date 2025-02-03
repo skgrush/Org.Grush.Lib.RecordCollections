@@ -2,10 +2,10 @@ using FluentAssertions;
 
 namespace Org.Grush.Lib.RecordCollections.Tests;
 
-public class ForInitializability
+public static class ForInitializability
 {
   [Fact]
-  public void UsingEmptyCreate()
+  public static void UsingEmptyCreate()
   {
     // Act
     var coll = RecordCollection.Create<double>();
@@ -18,7 +18,7 @@ public class ForInitializability
   }
 
   [Fact]
-  public void UsingStaticCreateMethod()
+  public static void UsingStaticCreateMethod()
   {
     // Act
     var collection = RecordCollection.Create(["A", "B"]);
@@ -33,7 +33,7 @@ public class ForInitializability
   }
 
   [Fact]
-  public void UsingCollectionExpression()
+  public static void UsingCollectionExpression()
   {
     // Act
     RecordCollection<double> collection = [3.14159, double.NaN, double.PositiveInfinity];
@@ -49,7 +49,7 @@ public class ForInitializability
   }
 
   [Fact]
-  public void UsingEnumerableExtension()
+  public static void UsingEnumerableExtension()
   {
     // Assemble
     List<int> oldList = [1, 2, 3];
@@ -71,7 +71,7 @@ public class ForInitializability
   }
 
   [Fact]
-  public void UsingEnumerableExtension_ForReadOnlySpan()
+  public static void UsingEnumerableExtension_ForReadOnlySpan()
   {
     // Assemble
     ReadOnlySpan<string> span = ["a", "b", "c"];
@@ -88,7 +88,7 @@ public class ForInitializability
   }
 
   [Fact]
-  public void UsingCreateRange()
+  public static void UsingCreateRange()
   {
     // Assemble
     List<string> input = ["a", "b"];

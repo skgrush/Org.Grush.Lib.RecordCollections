@@ -9,11 +9,11 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 namespace Org.Grush.Lib.RecordCollections.Tests;
 
 [SuppressMessage("Usage", "xUnit1026:Theory methods should use all of their parameters")]
-public class ForDeserializability
+public static class ForDeserializability
 {
   [Theory]
   [ClassData(typeof(RuntimeDeserializers<RecordCollection<string?>>))]
-  public void AtRuntime_WithSingleLayer(string name, Func<string, RecordCollection<string?>> deserializer)
+  public static void AtRuntime_WithSingleLayer(string name, Func<string, RecordCollection<string?>> deserializer)
   {
     const string json =
       """
@@ -28,7 +28,7 @@ public class ForDeserializability
   [Theory]
   [ClassData(
     typeof(RuntimeDeserializers<RecordCollection<TestRecord<RecordCollection<int>, RecordCollection<string>>>>))]
-  public void AtRuntime_WithMultipleLayers(string name,
+  public static void AtRuntime_WithMultipleLayers(string name,
     Func<string, RecordCollection<TestRecord<RecordCollection<int>, RecordCollection<string>>>> deserializer)
   {
     const string json =
@@ -46,10 +46,10 @@ public class ForDeserializability
       ]));
   }
 
-  public class WithSourceGeneratedDeserializer
+  public static class WithSourceGeneratedDeserializer
   {
     [Fact]
-    public void WhenEmptyArray()
+    public static void WhenEmptyArray()
     {
       const string json = "[]";
 
@@ -62,7 +62,7 @@ public class ForDeserializability
     }
 
     [Fact]
-    public void InSimpleCase()
+    public static void InSimpleCase()
     {
       const string json =
         """
@@ -78,7 +78,7 @@ public class ForDeserializability
     }
 
     [Fact]
-    public void WithNonStandardSettings()
+    public static void WithNonStandardSettings()
     {
       const string json =
         """
@@ -107,7 +107,7 @@ public class ForDeserializability
     [InlineData("no end", "[ 1, 2, 3 ")]
     [InlineData("no end", "[ 1, 2, 3 , ")]
     [InlineData("no brackets", " 1, 2, 3")]
-    public void ThrowJsonExceptionWhen(string _, string json)
+    public static void ThrowJsonExceptionWhen(string _, string json)
     {
       // Assemble
       Action act = () =>

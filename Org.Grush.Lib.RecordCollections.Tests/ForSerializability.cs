@@ -9,11 +9,11 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 namespace Org.Grush.Lib.RecordCollections.Tests;
 
 [SuppressMessage("Usage", "xUnit1026:Theory methods should use all of their parameters")]
-public class ForSerializability
+public static class ForSerializability
 {
   [Theory]
   [ClassData(typeof(Serializers))]
-  public void WithMultipleLayers(string name,
+  public static void WithMultipleLayers(string name,
     Func<TestRecord<RecordCollection<int>, RecordCollection<string>>, string> serializer)
   {
     var result = serializer(
@@ -33,7 +33,7 @@ public class ForSerializability
   }
 
   [Fact]
-  public void WithNonstandardSettings()
+  public static void WithNonstandardSettings()
   {
     var result = JsonSerializer.Serialize(
       [
@@ -53,8 +53,7 @@ public class ForSerializability
           """);
   }
 
-  private class
-    Serializers : TheoryData<string, Func<TestRecord<RecordCollection<int>, RecordCollection<string>>, string>>
+  private class Serializers : TheoryData<string, Func<TestRecord<RecordCollection<int>, RecordCollection<string>>, string>>
   {
     public Serializers()
     {

@@ -6,10 +6,10 @@ using Xunit.Sdk;
 
 namespace Org.Grush.Lib.RecordCollections.Tests;
 
-public class ForEquatability
+public static class ForEquatability
 {
   [Fact]
-  public void WhenContainingValueTypes()
+  public static void WhenContainingValueTypes()
   {
     // Assemble
     RecordCollection<int> collectionA = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -23,7 +23,7 @@ public class ForEquatability
   }
 
   [Fact]
-  public void WhenContainingReferenceTypes()
+  public static void WhenContainingReferenceTypes()
   {
     // Assemble
     var collectionA = RecordCollection.Create([new TestRecordOfInts(1, 2), new TestRecordOfInts(3, 4)]);
@@ -45,7 +45,7 @@ public class ForEquatability
   [InlineData(false, true)]
   [InlineData(true, false)]
   [InlineData(true, true)]
-  public void AndEqualWithNullValues(bool oneEmpty, bool reversed)
+  public static void AndEqualWithNullValues(bool oneEmpty, bool reversed)
   {
     // Assemble
     RecordCollection<int>? collectionA = oneEmpty ? [] : [1, 2, 3];
@@ -67,7 +67,7 @@ public class ForEquatability
   }
 
   [Fact]
-  public void ForUseInDictionaries()
+  public static void ForUseInDictionaries()
   {
     // Assemble
     RecordCollection<string> collectionA = ["a", "b"];
@@ -91,7 +91,7 @@ public class ForEquatability
   }
 
   [Fact]
-  public void ForUseInHashSets()
+  public static void ForUseInHashSets()
   {
     // Assemble
     RecordCollection<double> collectionA = [3.14159, double.PositiveInfinity];
@@ -114,7 +114,7 @@ public class ForEquatability
   }
 
   [Fact]
-  public void AsMembersOfRecords()
+  public static void AsMembersOfRecords()
   {
     // Assemble
     var recordA = new TestRecordOfCollections([1, 2], [3, 4]);
@@ -166,7 +166,7 @@ public class ForEquatability
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public void WhenNeitherNull(bool shouldBeEqual)
+    public static void WhenNeitherNull(bool shouldBeEqual)
     {
       // Assemble
       RecordCollection<int>? collB = [1, 2, 3];
@@ -180,7 +180,7 @@ public class ForEquatability
     }
 
     [Fact]
-    public void WhenBothNull()
+    public static void WhenBothNull()
     {
       RecordCollection<string>.Equals(null, null)
         .Should()
@@ -190,7 +190,7 @@ public class ForEquatability
     [Theory]
     [InlineData(false, true)]
     [InlineData(true, false)]
-    public void WhenMismatchedNullable(bool firstIsNull, bool secondIsNull)
+    public static void WhenMismatchedNullable(bool firstIsNull, bool secondIsNull)
     {
       // Assemble
       RecordCollection<int>? firstColl = firstIsNull ? null : [1, 2, 3, 4];
@@ -204,10 +204,10 @@ public class ForEquatability
     }
   }
 
-  public class Structural
+  public static class Structural
   {
     [Fact]
-    public void ShouldReturnFalseAgainstNull()
+    public static void ShouldReturnFalseAgainstNull()
     {
       RecordCollection<int> collectionA = [1, 2, 3];
       RecordCollection<int>? collectionB = null;
@@ -222,12 +222,12 @@ public class ForEquatability
     }
 
     [Fact]
-    public void WhenComparerIsOfT_AndOtherIsRecordCollectionOfT_ShouldUseTComparer()
+    public static void WhenComparerIsOfT_AndOtherIsRecordCollectionOfT_ShouldUseTComparer()
     {
       RecordCollection<byte> collectionA = [1, 2, 3];
       RecordCollection<byte>? collectionB = [1, 2, 3];
 
-      var comparerMock = MakeComparerOf<byte>(null, null);
+      var comparerMock = MakeComparerOf<byte>();
       comparerMock.Setup(c => c.Equals(It.IsAny<byte>(), It.IsAny<byte>())).Returns(true);
 
       var areEqual = ((IStructuralEquatable)collectionA).Equals(collectionB, (IEqualityComparer)comparerMock.Object);
@@ -238,11 +238,11 @@ public class ForEquatability
     }
 
     [Fact]
-    public void WhenComparerIsOfT_AndOtherIsIEnumerableOfT_ShouldUseTComparer()
+    public static void WhenComparerIsOfT_AndOtherIsIEnumerableOfT_ShouldUseTComparer()
     {
       RecordCollection<byte> collectionA = [1, 2, 3];
       IEnumerable<byte> enumerableB = Enumerable.Range(1, 3).Select(x => (byte)x);
-      var comparer = MakeComparerOf<byte>(null, null);
+      var comparer = MakeComparerOf<byte>();
       comparer.Setup(c => c.Equals(It.IsAny<byte>(), It.IsAny<byte>())).Returns((byte a, byte b) => a == b);
 
       var areEqual = ((IStructuralEquatable)collectionA).Equals(enumerableB, (IEqualityComparer)comparer.Object);
@@ -253,11 +253,11 @@ public class ForEquatability
     }
 
     [Fact]
-    public void WhenToStructuralEquatable_ButNotEnumerable()
+    public static void WhenToStructuralEquatable_ButNotEnumerable()
     {
       RecordCollection<uint> collectionA = [1, 2, 3];
 
-      var comparer = MakeComparerOf<uint>(null, null);
+      var comparer = MakeComparerOf<uint>();
       comparer.Setup(c => c.GetHashCode(It.IsIn(1u, 2u, 3u))).Returns((uint i) => (int)i);
 
       int hashOfCollectionA = ((IStructuralEquatable)collectionA).GetHashCode((IEqualityComparer)comparer.Object);
@@ -276,11 +276,11 @@ public class ForEquatability
     }
 
     [Fact]
-    public void WhenComparerIsOfT_ButOtherIsNotEnumerableOfT_ShouldFallbackToEnumerable_AndFailLazily()
+    public static void WhenComparerIsOfT_ButOtherIsNotEnumerableOfT_ShouldFallbackToEnumerable_AndFailLazily()
     {
       RecordCollection<uint> collectionA = [1, 2, 3];
       RecordCollection<int> collectionB = [1, 22, 3];
-      var comparerMock = MakeComparer(null);
+      var comparerMock = MakeComparer();
       comparerMock.Setup(c => c.Equals(1u, 1)).Returns(true);
       comparerMock.Setup(c => c.Equals(2u, 22)).Returns(false);
       // lazily doesn't evaluate third item
@@ -293,7 +293,7 @@ public class ForEquatability
     }
 
     [Fact]
-    public void WhenOtherIsEnumerableOfOther_UseComparerEquals()
+    public static void WhenOtherIsEnumerableOfOther_UseComparerEquals()
     {
       RecordCollection<uint> collectionA = [1, 2, 3];
       IEnumerable<double> enumerableB = Enumerable.Range(1, 3).Select(x => x + 0.4);
@@ -307,7 +307,7 @@ public class ForEquatability
     [Theory]
     [InlineData(3, 4)]
     [InlineData(4, 3)]
-    public void WhenOtherIsEnumerableOfOther_UseComparerEquals_AndFailForMismatchedLength(int len1, int len2)
+    public static void WhenOtherIsEnumerableOfOther_UseComparerEquals_AndFailForMismatchedLength(int len1, int len2)
     {
       RecordCollection<int> collectionA = Enumerable.Range(1, len1).ToRecordCollection();
       IEnumerable<long> enumerableB = Enumerable.Range(1, len2).Select(x => (long)x);
@@ -321,7 +321,7 @@ public class ForEquatability
     }
 
     [Fact]
-    public void WhenOtherIsEnumerableOfOther_UseComparerEquals_AndFailForMismatchedValues()
+    public static void WhenOtherIsEnumerableOfOther_UseComparerEquals_AndFailForMismatchedValues()
     {
       RecordCollection<int> collectionA = [5, 6, 7];
       IEnumerable<long> enumerableB = Enumerable.Range(1, 3).Select(x => (long)x);
@@ -333,7 +333,7 @@ public class ForEquatability
     }
 
     [Fact]
-    public void FailForNonEnumerable()
+    public static void FailForNonEnumerable()
     {
       RecordCollection<int> collectionA = [1, 2, 3];
       object otherThing = new { unique = true };
@@ -345,7 +345,7 @@ public class ForEquatability
     }
 
     [Fact]
-    public void ShortCircuitForDifferentSizedCollections()
+    public static void ShortCircuitForDifferentSizedCollections()
     {
       RecordCollection<int> collectionA = [1, 2, 3];
 
@@ -361,7 +361,7 @@ public class ForEquatability
     }
 
     [Fact]
-    public void GetHashCode_ForComparerNotOfT_ForValueType()
+    public static void GetHashCode_ForComparerNotOfT_ForValueType()
     {
       RecordCollection<int?> collectionA = [1, 2, 3, null];
 

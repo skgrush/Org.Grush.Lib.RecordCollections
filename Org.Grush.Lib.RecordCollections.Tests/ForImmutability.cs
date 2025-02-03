@@ -7,10 +7,10 @@ using FluentAssertions.Execution;
 namespace Org.Grush.Lib.RecordCollections.Tests;
 
 [SuppressMessage("Usage", "xUnit1026:Theory methods should use all of their parameters")]
-public class ForImmutability
+public static class ForImmutability
 {
   [Fact]
-  public void AndAlwaysReadOnly()
+  public static void AndAlwaysReadOnly()
   {
     using var _ = new AssertionScope();
 
@@ -23,7 +23,7 @@ public class ForImmutability
   }
 
   [Fact]
-  public void ItemRefIsReadOnly()
+  public static void ItemRefIsReadOnly()
   {
     var collection = RecordCollection.Create([
       (Key: 1, Prop: "A"),
@@ -42,7 +42,7 @@ public class ForImmutability
   }
 
   [Fact]
-  public void AsSpanAndAsMemoryAreSame()
+  public static void AsSpanAndAsMemoryAreSame()
   {
     RecordCollection<string> collection = ["a", "b"];
 
@@ -54,7 +54,7 @@ public class ForImmutability
 
   [Theory]
   [ClassData(typeof(UnsupportedMethods))]
-  public void AndThrowForUnsupportedMethods(string name, Action action)
+  public static void AndThrowForUnsupportedMethods(string name, Action action)
   {
     action
       .Should()

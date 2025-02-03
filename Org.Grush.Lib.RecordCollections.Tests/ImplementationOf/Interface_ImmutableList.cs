@@ -7,9 +7,9 @@ namespace Org.Grush.Lib.RecordCollections.Tests.ImplementationOf;
 /// Yes these methods are mostly actually testing the <see cref="ImmutableArray{T}"/>
 /// struct but the intent is to make sure we're correctly interacting with that struct.
 /// </summary>
-public class Interface_ImmutableList
+public static class Interface_ImmutableList
 {
-  public class ImplicitImplementations
+  public static class ImplicitImplementations
   {
     private class StartsWithComparer : IEqualityComparer<string>
     {
@@ -25,7 +25,7 @@ public class Interface_ImmutableList
     }
 
     [Fact]
-    public void IndexOf()
+    public static void IndexOf()
     {
       RecordCollection<string> collection = ["a", "b", "c", "a", "b", "c"];
 
@@ -35,7 +35,7 @@ public class Interface_ImmutableList
     }
 
     [Fact]
-    public void IndexOf_IndexCount()
+    public static void IndexOf_IndexCount()
     {
       RecordCollection<string> collection = ["a", "b", "c", "a", "b", "c"];
 
@@ -45,7 +45,7 @@ public class Interface_ImmutableList
     }
 
     [Fact]
-    public void IndexOf_WithComparer()
+    public static void IndexOf_WithComparer()
     {
       RecordCollection<string> collection = ["Ayo", "Bye", "Cool", "And", "Bots", "Craze"];
 
@@ -55,7 +55,7 @@ public class Interface_ImmutableList
     }
 
     [Fact]
-    public void IndexOf_Missing()
+    public static void IndexOf_Missing()
     {
       RecordCollection<string> collection = ["a", "b", "c", "a", "b", "c"];
 
@@ -65,7 +65,7 @@ public class Interface_ImmutableList
     }
 
     [Fact]
-    public void LastIndexOf()
+    public static void LastIndexOf()
     {
       RecordCollection<string> collection = ["a", "b", "c", "a", "b", "c"];
 
@@ -75,7 +75,7 @@ public class Interface_ImmutableList
     }
 
     [Fact]
-    public void LastIndexOf_IndexCount()
+    public static void LastIndexOf_IndexCount()
     {
       RecordCollection<string> collection = ["a", "b", "c", "a", "b", "c", "a", "b", "c"];
 
@@ -85,7 +85,7 @@ public class Interface_ImmutableList
     }
 
     [Fact]
-    public void LastIndexOf_WithComparer()
+    public static void LastIndexOf_WithComparer()
     {
       RecordCollection<string> collection = ["Ayo", "Bye", "Cool", "And", "Bots", "Craze", "Are", "Bits"];
 
@@ -95,7 +95,7 @@ public class Interface_ImmutableList
     }
 
     [Fact]
-    public void LastIndexOf_Missing()
+    public static void LastIndexOf_Missing()
     {
       RecordCollection<string> collection = ["a", "b", "c", "a", "b", "c"];
 
@@ -105,14 +105,14 @@ public class Interface_ImmutableList
     }
   }
 
-  public class ExplicitImplementations
+  public static class ExplicitImplementations
   {
     private const int InitialLength = 6;
     private static readonly RecordCollection<int> Initial = [1, 2, 3, 4, 5, 6];
     private static IImmutableList<int> InitialAsList => Initial;
 
     [Fact]
-    public void Add()
+    public static void Add()
     {
       var initialAsList = InitialAsList;
 
@@ -130,7 +130,7 @@ public class Interface_ImmutableList
     }
 
     [Fact]
-    public void AddRange()
+    public static void AddRange()
     {
       var initialAsList = InitialAsList;
 
@@ -148,7 +148,7 @@ public class Interface_ImmutableList
     }
 
     [Fact]
-    public void Clear()
+    public static void Clear()
     {
       var initialAsList = InitialAsList;
 
@@ -166,7 +166,7 @@ public class Interface_ImmutableList
     }
 
     [Fact]
-    public void Insert()
+    public static void Insert()
     {
       var initialAsList = InitialAsList;
 
@@ -184,7 +184,7 @@ public class Interface_ImmutableList
     }
 
     [Fact]
-    public void InsertRange()
+    public static void InsertRange()
     {
       var initialAsList = InitialAsList;
 
@@ -214,7 +214,7 @@ public class Interface_ImmutableList
     }
 
     [Fact]
-    public void Remove_WithComparer()
+    public static void Remove_WithComparer()
     {
       RecordCollection<int> duplicatingCollection = [1, 2, 3, 4, 5, 6];
       IImmutableList<int> duplicatingCollectionAsList = duplicatingCollection;
@@ -230,7 +230,7 @@ public class Interface_ImmutableList
     }
 
     [Fact]
-    public void Remove_WithoutComparer()
+    public static void Remove_WithoutComparer()
     {
       RecordCollection<int> duplicatingCollection = [1, 2, 2, 2, 2, 3];
       IImmutableList<int> duplicatingCollectionAsList = duplicatingCollection;
@@ -246,7 +246,7 @@ public class Interface_ImmutableList
     }
 
     [Fact]
-    public void RemoveAll()
+    public static void RemoveAll()
     {
       var initialAsList = InitialAsList;
 
@@ -264,7 +264,7 @@ public class Interface_ImmutableList
     }
 
     [Fact]
-    public void RemoveAt()
+    public static void RemoveAt()
     {
       var initialAsList = InitialAsList;
 
@@ -282,7 +282,7 @@ public class Interface_ImmutableList
     }
 
     [Fact]
-    public void RemoveRange_WithoutComparer()
+    public static void RemoveRange_WithoutComparer()
     {
       var initialAsList = InitialAsList;
 
@@ -300,7 +300,7 @@ public class Interface_ImmutableList
     }
 
     [Fact]
-    public void RemoveRange_WithComparer()
+    public static void RemoveRange_WithComparer()
     {
       var initialAsList = InitialAsList;
 
@@ -318,7 +318,7 @@ public class Interface_ImmutableList
     }
 
     [Fact]
-    public void RemoveRange_IndexCount()
+    public static void RemoveRange_IndexCount()
     {
       var initialAsList = InitialAsList;
 
@@ -336,7 +336,7 @@ public class Interface_ImmutableList
     }
 
     [Fact]
-    public void Replace_WithComparer()
+    public static void Replace_WithComparer()
     {
       var initialAsList = InitialAsList;
 
@@ -354,7 +354,7 @@ public class Interface_ImmutableList
     }
 
     [Fact]
-    public void Replace_WithoutComparer()
+    public static void Replace_WithoutComparer()
     {
       var initialAsList = InitialAsList;
 
@@ -372,7 +372,7 @@ public class Interface_ImmutableList
     }
 
     [Fact]
-    public void SetItem()
+    public static void SetItem()
     {
       var initialAsList = InitialAsList;
 
