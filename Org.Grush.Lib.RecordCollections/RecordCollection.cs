@@ -8,6 +8,12 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Org.Grush.Lib.RecordCollections;
 
+internal interface IRecordCollection : IList, IStructuralEquatable
+{
+  [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+  internal ref readonly IStructuralEquatable InnerData { get; }
+}
+
 /// <summary>
 /// Collection type with record compatibility (value equal, immutable, de/serializable).
 ///
@@ -22,13 +28,15 @@ public readonly struct RecordCollection<T> :
   IList<T>,
   IImmutableList<T>,
   IEquatable<RecordCollection<T>>,
-  IStructuralEquatable
+  IRecordCollection
 {
   /// <summary>Static empty instance of a <typeparamref name="T"/> record collection.</summary>
   public static readonly RecordCollection<T> Empty = ImmutableArray<T>.Empty;
 
   [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
   private readonly ImmutableArray<T> _data;
+  [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+  IStructuralEquatable IRecordCollection.InnerData => _data;
 
   private RecordCollection(ImmutableArray<T> data) => _data = data;
 
@@ -184,34 +192,20 @@ public readonly struct RecordCollection<T> :
     return hash.ToHashCode();
   }
 
-  public bool SequenceEquals<TOther>(IReadOnlyList<TOther> otherList, IEqualityComparer comparer)
+  /// <summary>
+  /// Sequence equality check for an enumerable sequence of unknown type.
+  /// </summary>
+  [Pure]
+  public bool SequenceEqual(IEnumerable otherEnumerable, IEqualityComparer comparer)
   {
-    if (Count != otherList.Count)
+    int count = Count;
+    if (otherEnumerable is ICollection list && count != list.Count)
       return false;
 
-    for (int i = 0; i < Count; i++)
-    {
-      if (!comparer.Equals(this[i], otherList[i]))
-        return false;
-    }
-
-    return true;
-  }
-
-  public bool SequenceEquals<TOther>(IEnumerable<TOther> otherEnumerable, IEqualityComparer comparer)
-  {
-    switch (otherEnumerable)
-    {
-      case IReadOnlyList<TOther> readOnlyList:
-        return SequenceEquals(readOnlyList, comparer);
-      case IReadOnlyCollection<TOther> coll when Count != coll.Count:
-        return false;
-    }
-
     int i = 0;
-    foreach (TOther item in otherEnumerable)
+    foreach (object item in otherEnumerable)
     {
-      if (i == Count)
+      if (i == count)
         return false;
 
       if (!comparer.Equals(_data[i], item))
@@ -220,7 +214,7 @@ public readonly struct RecordCollection<T> :
       ++i;
     }
 
-    return i == Count;
+    return i == count;
   }
 
   #endregion equality
@@ -235,24 +229,22 @@ public readonly struct RecordCollection<T> :
     if (other is null)
       return false;
 
-    if (other is IEnumerable<T> otherOfT)
+    if (other is IEnumerable<T> otherOfT && comparer is IEqualityComparer<T> comparerOfT)
     {
-      if (comparer is not IEqualityComparer<T> comparerOfT)
-        return SequenceEquals(otherOfT, comparer);
-
       if (other is RecordCollection<T> r)
         return _data.SequenceEqual(r._data, comparerOfT);
 
       return _data.SequenceEqual(otherOfT, comparerOfT);
-
     }
+
+    if (other is IRecordCollection ir)
+      return ((IStructuralEquatable)_data).Equals(ir.InnerData, comparer);
+
+    if (other is IEnumerable enumerable)
+      return SequenceEqual(enumerable, comparer);
 
     if (other is IStructuralEquatable equatable)
       return ((IStructuralEquatable)this).GetHashCode(comparer) == equatable.GetHashCode(comparer);
-
-    // TODO: handle IEnumerable<Other> better
-    if (other is IEnumerable enumerable)
-      return SequenceEquals(enumerable.Cast<object>(), comparer);
 
     return false;
   }
@@ -263,9 +255,16 @@ public readonly struct RecordCollection<T> :
       return GetHashCode(innerComparer);
 
     var hash = new HashCode();
-    foreach (var item in _data)
+    // minor optimization if value-typed to avoid null-checks
+    if (typeof(T).IsValueType)
     {
-      hash.Add(item is null ? 0 : comparer.GetHashCode(item));
+      foreach (var item in _data)
+        hash.Add(comparer.GetHashCode(item!));
+    }
+    else
+    {
+      foreach (var item in _data)
+        hash.Add(item is null ? 0 : comparer.GetHashCode(item));
     }
     return hash.ToHashCode();
   }

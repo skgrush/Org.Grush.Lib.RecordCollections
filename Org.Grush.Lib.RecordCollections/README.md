@@ -74,13 +74,11 @@ contains.Should().BeTrue();
 1. Calls to `RecordCollection<T>#Equals(object)` or `RecordCollection<T>#Equals(object, IEqualityComparer<T>)` are only supported for other `RecordCollection<T>`.
 2. Explicit calls to `((IStructuralEquatable)RecordCollection<T>)#Equals(object?, IEqualityComparer)`
 follow a priority order for checking:
-   1. if other implements `IEnumerable<T>`:
-      * if other implements `IReadOnlyCollection<TOther>`, we check that counts match.
-      * if other implements `IReadOnlyList<TOther>`, an index-optimized `SequenceEqual` is used.
-      * otherwise, we iteratively check each index.
-   2. if the comparer implements `IEqualityComparer<T>` and the other is `<T>`, optimized `SequenceEqual` is used.
-   3. if other implements `IStructuralEquatable`, we call `#GetHashCode(comparer)` on each instance and compare.
-   4. if other implements `IEnumerable`, a de-optimized `SequenceEqual` is used.
+   1. if other implements `IEnumerable<T>` AND comparer implements `IEqualityComparer<T>`,
+      we run a check using the `<T>`-typed equality comparison.
+   2. if other implements `IEnumerable` not `<T>`, a de-optimized `SequenceEqual` is used.
+   3. if other implements `IStructuralEquatable`, we call `#GetHashCode(comparer)` on each instance and compare;
+      **NOTE: this eagerly evaluates the entire sequence**.
 
 ## Serialization
 
