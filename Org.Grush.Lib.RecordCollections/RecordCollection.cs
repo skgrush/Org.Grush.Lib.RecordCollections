@@ -55,10 +55,19 @@ public readonly struct RecordCollection<T> :
   /// <summary>true if-and-only-if the collection is empty.</summary>
   public bool IsEmpty => _data.IsEmpty;
   [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+  bool IList.IsFixedSize => true;
+  [DebuggerBrowsable(DebuggerBrowsableState.Never)]
   bool ICollection<T>.IsReadOnly => true;
+  [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+  bool IList.IsReadOnly => true;
   /// <summary>Number of elements in the collection.</summary>
   public int Count => _data.Length;
 
+  bool ICollection.IsSynchronized => true;
+  object ICollection.SyncRoot => ((ICollection)_data).SyncRoot;
+
+
+  [Pure]
   public T this[int index]
   {
     get => _data[index];
@@ -131,7 +140,7 @@ public readonly struct RecordCollection<T> :
 
   #endregion IImmutableList implementation overrides
 
-  #region IList implementation
+  #region IList<T> implementation
   void ICollection<T>.Add(T ele) => throw new NotSupportedException(ExceptionMessage.Immutable);
   void ICollection<T>.Clear() => throw new NotSupportedException(ExceptionMessage.Immutable);
   bool ICollection<T>.Remove(T item) => throw new NotSupportedException(ExceptionMessage.Immutable);
@@ -145,9 +154,28 @@ public readonly struct RecordCollection<T> :
   public void CopyTo(T[] array, int arrayIndex) => _data.CopyTo(array, arrayIndex);
   /// <summary>Copies the contents of this collection to a <see cref="Span{T}"/>.</summary>
   public void CopyTo(Span<T> destination) => _data.CopyTo(destination);
+  #endregion IList<T> implementation
+
+  #region IList implementation
+  object? IList.this[int index]
+  {
+    get => this[index];
+    [Obsolete($"Will throw '{ExceptionMessage.Immutable}'", error: true)]
+    set => throw new NotSupportedException(ExceptionMessage.Immutable);
+  }
+  bool IList.Contains(object? value) => value is T t && _data.Contains(t);
+  int IList.IndexOf(object? value) => value is T t ? _data.IndexOf(t) : -1;
+
+  void IList.Clear() => throw new NotSupportedException(ExceptionMessage.Immutable);
+  void IList.RemoveAt(int index) => throw new NotSupportedException(ExceptionMessage.Immutable);
+  int IList.Add(object? value) => throw new NotSupportedException(ExceptionMessage.Immutable);
+  void ICollection.CopyTo(Array array, int index) => throw new NotSupportedException(ExceptionMessage.Immutable);
+  void IList.Insert(int index, object? value) => throw new NotSupportedException(ExceptionMessage.Immutable);
+  void IList.Remove(object? value) => throw new NotSupportedException(ExceptionMessage.Immutable);
+
   #endregion IList implementation
 
-  #region IImmutableList implementation
+  #region IImmutableList<T> implementation
   IImmutableList<T> IImmutableList<T>.Add(T value) => Add(value);
   IImmutableList<T> IImmutableList<T>.AddRange(IEnumerable<T> items) => AddRange(items);
   IImmutableList<T> IImmutableList<T>.Clear() => Clear();
@@ -160,7 +188,7 @@ public readonly struct RecordCollection<T> :
   IImmutableList<T> IImmutableList<T>.RemoveRange(int index, int count) => RemoveRange(index, count);
   IImmutableList<T> IImmutableList<T>.Replace(T oldValue, T newValue, IEqualityComparer<T>? equalityComparer) => Replace(oldValue, newValue, equalityComparer);
   IImmutableList<T> IImmutableList<T>.SetItem(int index, T value) => SetItem(index, value);
-  #endregion IImmutableList implementation
+  #endregion IImmutableList<T> implementation
 
   #region equality
   public override bool Equals(
