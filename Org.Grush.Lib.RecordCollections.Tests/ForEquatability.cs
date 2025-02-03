@@ -215,37 +215,43 @@ public class ForEquatability
     }
 
     [Fact]
-    public void WhenComparerIsOfT_ButOtherIsNotEnumerableOfT_ShouldFallbackToStructuralEquatable()
+    public void WhenToStructuralEquatable_ButNotEnumerable()
     {
       RecordCollection<uint> collectionA = [1, 2, 3];
-      RecordCollection<int> collectionB = [1, 2, 3];
-      var comparer = MakeComparerOf<uint>(null, null);
-      comparer.Setup(c => c.GetHashCode(It.IsAny<uint>())).Returns((uint i) => (int)i);
-      comparer.As<IEqualityComparer>().Setup(c => c.GetHashCode(It.IsIn(1, 2, 3))).Returns((int i) => i);
 
-      var areEqual = ((IStructuralEquatable)collectionA).Equals(collectionB, (IEqualityComparer)comparer.Object);
+      var comparer = MakeComparerOf<uint>(null, null);
+      comparer.Setup(c => c.GetHashCode(It.IsIn(1u, 2u, 3u))).Returns((uint i) => (int)i);
+
+      int hashOfCollectionA = ((IStructuralEquatable)collectionA).GetHashCode((IEqualityComparer)comparer.Object);
+      comparer.Reset();
+      comparer.Setup(c => c.GetHashCode(It.IsIn(1u, 2u, 3u))).Returns((uint i) => (int)i);
+
+      var otherMock = new Mock<IStructuralEquatable>(MockBehavior.Strict);
+      otherMock.Setup(m => m.GetHashCode((IEqualityComparer)comparer.Object)).Returns(hashOfCollectionA);
+
+      var areEqual = ((IStructuralEquatable)collectionA).Equals(otherMock.Object, (IEqualityComparer)comparer.Object);
 
       areEqual.Should().BeTrue();
 
       comparer.Verify(c => c.GetHashCode(It.IsAny<uint>()), Times.Exactly(3));
-      comparer.As<IEqualityComparer>().Verify(c => c.GetHashCode(It.IsAny<object>()), Times.Exactly(3));
+      otherMock.VerifyAll();
     }
 
     [Fact]
-    public void WhenComparerIsOfT_ButOtherIsNotEnumerableOfT_ShouldFallbackToStructuralEquatable_AndFailForMismatch()
+    public void WhenComparerIsOfT_ButOtherIsNotEnumerableOfT_ShouldFallbackToEnumerable_AndFailLazily()
     {
       RecordCollection<uint> collectionA = [1, 2, 3];
       RecordCollection<int> collectionB = [1, 22, 3];
-      var comparer = MakeComparerOf<uint>(null, null);
-      comparer.Setup(c => c.GetHashCode(It.IsAny<uint>())).Returns((uint i) => (int)i);
-      comparer.As<IEqualityComparer>().Setup(c => c.GetHashCode(It.IsIn(1, 22, 3))).Returns((int i) => i);
+      var comparerMock = MakeComparer(null);
+      comparerMock.Setup(c => c.Equals(1u, 1)).Returns(true);
+      comparerMock.Setup(c => c.Equals(2u, 22)).Returns(false);
+      // lazily doesn't evaluate third item
 
-      var areEqual = ((IStructuralEquatable)collectionA).Equals(collectionB, (IEqualityComparer)comparer.Object);
+      var areEqual = ((IStructuralEquatable)collectionA).Equals(collectionB, comparerMock.Object);
 
       areEqual.Should().BeFalse();
 
-      comparer.Verify(c => c.GetHashCode(It.IsAny<uint>()), Times.Exactly(3));
-      comparer.As<IEqualityComparer>().Verify(c => c.GetHashCode(It.IsAny<object>()), Times.Exactly(3));
+      comparerMock.Verify(c => c.Equals(It.IsAny<object>(), It.IsAny<object>()), Times.Exactly(2));
     }
 
     [Fact]
@@ -305,7 +311,7 @@ public class ForEquatability
     {
       RecordCollection<int> collectionA = [1, 2, 3];
 
-      var maxCollectionMoq = new Mock<IReadOnlyCollection<int>>(MockBehavior.Strict);
+      var maxCollectionMoq = new Mock<ICollection>(MockBehavior.Strict);
       maxCollectionMoq.SetupGet(x => x.Count).Returns(int.MaxValue);
       maxCollectionMoq.Setup(x => x.GetEnumerator()).Throws(() => FailException.ForFailure("called GetEnumerator"));
 
@@ -316,6 +322,38 @@ public class ForEquatability
       areEqual.Should().BeFalse();
     }
 
+    [Fact]
+    public void GetHashCode_ForComparerNotOfT_ForValueType()
+    {
+      RecordCollection<int?> collectionA = [1, 2, 3, null];
+
+      var expectedHash = HashCode.Combine(1, 2, 3, (int?)null);
+
+      var comparerMock = MakeComparer(null);
+      comparerMock.Setup(c => c.GetHashCode(It.IsIn(1, 2, 3))).Returns((int v) => v.GetHashCode());
+      comparerMock.Setup(c => c.GetHashCode((int?)null)).Returns(0);
+
+      var actualHashCode = ((IStructuralEquatable)collectionA).GetHashCode(comparerMock.Object);
+
+      actualHashCode.Should().Be(expectedHash);
+      comparerMock.VerifyAll();
+    }
+
+    [Fact]
+    public void GetHashCode_ForComparerNotOfT_ForReferenceType()
+    {
+      RecordCollection<string?> collectionA = ["a", "b", "c", null];
+
+      var expectedHash = HashCode.Combine("a", "b", "c", 0);
+
+      var comparerMock = MakeComparer(null);
+      comparerMock.Setup(c => c.GetHashCode(It.IsIn("a", "b", "c"))).Returns((string v) => v.GetHashCode());
+
+      var actualHashCode = ((IStructuralEquatable)collectionA).GetHashCode(comparerMock.Object);
+
+      actualHashCode.Should().Be(expectedHash);
+      comparerMock.VerifyAll();
+    }
 
     private Mock<IEqualityComparer> MakeComparer(IEqualityComparer? basedOn)
     {
