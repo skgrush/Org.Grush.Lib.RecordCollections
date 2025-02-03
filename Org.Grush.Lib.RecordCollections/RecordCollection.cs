@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Text.Json.Serialization;
 #if !NETSTANDARD2_0
 using System.Diagnostics.CodeAnalysis;
@@ -44,7 +45,9 @@ public readonly struct RecordCollection<T> :
   public static implicit operator RecordCollection<T>(ImmutableArray<T> data) => new(data: data);
   public static explicit operator ImmutableArray<T>(RecordCollection<T> r) => r._data;
 
+  [Pure]
   public ReadOnlySpan<T> AsSpan() => _data.AsSpan();
+  [Pure]
   public ReadOnlyMemory<T> AsMemory() => _data.AsMemory();
 
   public static bool operator==(RecordCollection<T> a, RecordCollection<T> b) => a.Equals(b);
@@ -53,6 +56,7 @@ public readonly struct RecordCollection<T> :
   public static bool operator!=(RecordCollection<T>? a, RecordCollection<T>? b) => !Equals(a, b);
 
   /// <summary>true if-and-only-if the collection is empty.</summary>
+  [Pure]
   public bool IsEmpty => _data.IsEmpty;
   [DebuggerBrowsable(DebuggerBrowsableState.Never)]
   bool IList.IsFixedSize => true;
@@ -61,6 +65,7 @@ public readonly struct RecordCollection<T> :
   [DebuggerBrowsable(DebuggerBrowsableState.Never)]
   bool IList.IsReadOnly => true;
   /// <summary>Number of elements in the collection.</summary>
+  [Pure]
   public int Count => _data.Length;
 
   bool ICollection.IsSynchronized => true;
@@ -75,8 +80,10 @@ public readonly struct RecordCollection<T> :
     set => throw new NotSupportedException(ExceptionMessage.Immutable);
   }
 
+  [Pure]
   public ref readonly T ItemRef(int index) => ref _data.ItemRef(index);
 
+  [Pure]
   public ImmutableArray<T>.Enumerator GetEnumerator() => _data.GetEnumerator();
   IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>)_data).GetEnumerator();
   IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<T>)_data).GetEnumerator();
@@ -84,58 +91,72 @@ public readonly struct RecordCollection<T> :
   #region IImmutableList implementation overrides
 
   /// <inheritdoc cref="IImmutableList{T}.Add"/>
+  [Pure]
   public RecordCollection<T> Add(T value) => _data.Add(value);
 
   /// <inheritdoc cref="IImmutableList{T}.AddRange"/>
+  [Pure]
   public RecordCollection<T> AddRange(IEnumerable<T> items)
     => _data.AddRange(items);
 
   /// <summary>Creates a new empty list of the same type.</summary>
+  [Pure]
   public RecordCollection<T> Clear()
     => Empty;
 
   /// <inheritdoc cref="IImmutableList{T}.Insert"/>
+  [Pure]
   public RecordCollection<T> Insert(int index, T element)
     => _data.Insert(index, element);
 
   /// <inheritdoc cref="IImmutableList{T}.InsertRange"/>
+  [Pure]
   public RecordCollection<T> InsertRange(int index, IEnumerable<T> items)
     => _data.InsertRange(index, items);
 
   /// <inheritdoc cref="IImmutableList{T}.Remove"/>
-  public RecordCollection<T> Remove(T value, IEqualityComparer<T>? equalityComparer) =>
+  [Pure]
+  public RecordCollection<T> Remove(T value, IEqualityComparer<T>? equalityComparer = null) =>
     _data.Remove(value, equalityComparer);
 
   /// <inheritdoc cref="IImmutableList{T}.RemoveAll"/>
+  [Pure]
   public RecordCollection<T> RemoveAll(Predicate<T> match)
     => _data.RemoveAll(match);
 
   /// <inheritdoc cref="IImmutableList{T}.RemoveAt"/>
+  [Pure]
   public RecordCollection<T> RemoveAt(int index)
     => _data.RemoveAt(index);
 
   /// <inheritdoc cref="IImmutableList{T}.RemoveRange(System.Collections.Generic.IEnumerable{T},System.Collections.Generic.IEqualityComparer{T}?)"/>
-  public RecordCollection<T> RemoveRange(IEnumerable<T> items, IEqualityComparer<T>? equalityComparer) =>
+  [Pure]
+  public RecordCollection<T> RemoveRange(IEnumerable<T> items, IEqualityComparer<T>? equalityComparer = null) =>
     _data.RemoveRange(items, equalityComparer);
 
   /// <inheritdoc cref="IImmutableList{T}.RemoveRange(int,int)"/>
+  [Pure]
   public RecordCollection<T> RemoveRange(int index, int count)
     => _data.RemoveRange(index, count);
 
   /// <inheritdoc cref="IImmutableList{T}.Replace"/>
-  public RecordCollection<T> Replace(T oldValue, T newValue, IEqualityComparer<T>? equalityComparer) =>
+  [Pure]
+  public RecordCollection<T> Replace(T oldValue, T newValue, IEqualityComparer<T>? equalityComparer = null) =>
     _data.Replace(oldValue, newValue, equalityComparer);
 
   /// <inheritdoc cref="IImmutableList{T}.SetItem"/>
+  [Pure]
   public RecordCollection<T> SetItem(int index, T value)
     => _data.SetItem(index, value);
 
   /// <inheritdoc cref="IImmutableList{T}.IndexOf"/>
-  public int IndexOf(T item, int index, int count, IEqualityComparer<T>? equalityComparer)
+  [Pure]
+  public int IndexOf(T item, int index, int count, IEqualityComparer<T>? equalityComparer = null)
     => _data.IndexOf(item, index, count, equalityComparer);
 
   /// <inheritdoc cref="IImmutableList{T}.LastIndexOf"/>
-  public int LastIndexOf(T item, int index, int count, IEqualityComparer<T>? equalityComparer)
+  [Pure]
+  public int LastIndexOf(T item, int index, int count, IEqualityComparer<T>? equalityComparer = null)
     => _data.LastIndexOf(item, index, count, equalityComparer);
 
   #endregion IImmutableList implementation overrides
@@ -147,8 +168,10 @@ public readonly struct RecordCollection<T> :
   void IList<T>.Insert(int index, T item) => throw new NotSupportedException(ExceptionMessage.Immutable);
   void IList<T>.RemoveAt(int index) => throw new NotSupportedException(ExceptionMessage.Immutable);
   /// <inheritdoc cref="IList{T}.IndexOf"/>
+  [Pure]
   public int IndexOf(T item) => _data.IndexOf(item);
   /// <inheritdoc cref="ICollection{T}.Contains"/>
+  [Pure]
   public bool Contains(T item) => _data.Contains(item);
   /// <inheritdoc cref="ImmutableArray{T}.CopyTo(T[],int)"/>
   public void CopyTo(T[] array, int arrayIndex) => _data.CopyTo(array, arrayIndex);
@@ -191,32 +214,37 @@ public readonly struct RecordCollection<T> :
   #endregion IImmutableList<T> implementation
 
   #region equality
+  [Pure]
   public override bool Equals(
     [NotNullWhen(true)] object? obj
   ) => obj is RecordCollection<T> recordCollection && Equals(recordCollection);
 
   /// <summary>Compares sequence-equality with any other <see cref="IImmutableList{T}"/>.</summary>
+  [Pure]
   public bool Equals(RecordCollection<T> other)
     => _data.SequenceEqual(other._data);
+  [Pure]
   public bool Equals(RecordCollection<T> other, IEqualityComparer<T> comparer)
     => _data.SequenceEqual(other._data, comparer);
 
+  [Pure]
   public static bool Equals(RecordCollection<T>? a, RecordCollection<T>? b)
     => RecordCollection.Equals(a, b);
 
   /// <summary>
   /// Gets/caches the combined <see cref="HashCode"/> of each item in the sequence.
   /// </summary>
+  [Pure]
   public override int GetHashCode() => GetHashCode(null);
 
+  [Pure]
   public int GetHashCode(IEqualityComparer<T>? comparer)
   {
     var hash = new HashCode();
 
     foreach (var item in _data)
-    {
       hash.Add(item, comparer);
-    }
+
     return hash.ToHashCode();
   }
 
