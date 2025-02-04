@@ -8,9 +8,7 @@ public class RecordCollectionNewtonsoftJsonConverter<T> : JsonConverter<RecordCo
   public override bool CanWrite => false;
 
   public override void WriteJson(JsonWriter writer, RecordCollection<T> value, JsonSerializer serializer)
-  {
-    serializer.Serialize(writer, value, typeof(IImmutableList<T>));
-  }
+    => throw new NotSupportedException();
 
   public override RecordCollection<T> ReadJson(JsonReader reader, Type objectType, RecordCollection<T> existingValue, bool hasExistingValue,
     JsonSerializer serializer)

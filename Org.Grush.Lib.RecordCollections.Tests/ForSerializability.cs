@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Org.Grush.Lib.RecordCollections.Newtonsoft;
 using Org.Grush.Lib.RecordCollections.Tests.Utilities;
 using JsonSerializer = System.Text.Json.JsonSerializer;
+using NewtonsoftJsonSerializer = Newtonsoft.Json.JsonSerializer;
 
 namespace Org.Grush.Lib.RecordCollections.Tests;
 
@@ -53,6 +54,21 @@ public static class ForSerializability
           """);
   }
 
+  [Fact]
+  public static void TryingToWriteWithNewtonsoftThrows()
+  {
+    // Assemble
+    JsonWriter writer = new JsonTextWriter(new StringWriter());
+    RecordCollection<int> data = [1, 2, 3];
+    NewtonsoftJsonSerializer serializer = new();
+
+    RecordCollectionNewtonsoftJsonConverter<int> converter = new();
+
+    // Act/Assert
+    var action = () => converter.WriteJson(writer, data, serializer);
+    action.Should().ThrowExactly<NotSupportedException>();
+  }
+
   private class Serializers : TheoryData<string, Func<TestRecord<RecordCollection<int>, RecordCollection<string>>, string>>
   {
     public Serializers()
@@ -64,9 +80,17 @@ public static class ForSerializability
       Add("System.Text.Json context",
         obj => JsonSerializer.Serialize(obj,
           TestRecordRecordCollectionIntStringContext.Default.TestRecordRecordCollectionInt32RecordCollectionString));
-      Add("Newtonsoft", obj => JsonConvert.SerializeObject(obj, new JsonSerializerSettings
+      Add("Newtonsoft factory", obj => JsonConvert.SerializeObject(obj, new JsonSerializerSettings
       {
         Converters = { new RecordCollectionNewtonsoftJsonConverterFactory() }
+      }));
+      Add("Newtonsoft explicit", obj => JsonConvert.SerializeObject(obj, new JsonSerializerSettings
+      {
+        Converters =
+        {
+          new RecordCollectionNewtonsoftJsonConverter<int>(),
+          new RecordCollectionNewtonsoftJsonConverter<string>(),
+        }
       }));
     }
   }
