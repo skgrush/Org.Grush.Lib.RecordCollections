@@ -41,15 +41,6 @@ public readonly struct RecordCollection<T> :
 
   private RecordCollection(ImmutableArray<T> data) => _data = data;
 
-  // we only allow conversion to/from ImmutableArray<T> because it's sealed and immutable
-  public static implicit operator RecordCollection<T>(ImmutableArray<T> data) => new(data: data);
-  public static explicit operator ImmutableArray<T>(RecordCollection<T> r) => r._data;
-
-  [Pure]
-  public ReadOnlySpan<T> AsSpan() => _data.AsSpan();
-  [Pure]
-  public ReadOnlyMemory<T> AsMemory() => _data.AsMemory();
-
   public static bool operator==(RecordCollection<T> a, RecordCollection<T> b) => a.Equals(b);
   public static bool operator!=(RecordCollection<T> a, RecordCollection<T> b) => !a.Equals(b);
   public static bool operator==(RecordCollection<T>? a, RecordCollection<T>? b) => Equals(a, b);
@@ -87,6 +78,41 @@ public readonly struct RecordCollection<T> :
   public ImmutableArray<T>.Enumerator GetEnumerator() => _data.GetEnumerator();
   IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>)_data).GetEnumerator();
   IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<T>)_data).GetEnumerator();
+
+  #region Conversions
+
+  // we only allow conversion to/from ImmutableArray<T> because it's sealed and immutable
+  public static implicit operator RecordCollection<T>(ImmutableArray<T> data) => new(data: data);
+  public static explicit operator ImmutableArray<T>(RecordCollection<T> r) => r._data;
+
+  [Pure]
+  public ReadOnlySpan<T> AsSpan() => _data.AsSpan();
+  [Pure]
+  public ReadOnlyMemory<T> AsMemory() => _data.AsMemory();
+
+  public RecordCollection<
+#nullable disable
+    TOther
+#nullable restore
+  > As<TOther>() where TOther : class?
+  {
+    var result = _data.As<TOther>();
+    if (result.IsDefault)
+      throw new InvalidCastException($"Invalid As() cast from {typeof(T)} to {typeof(TOther)}.");
+    return result;
+  }
+
+  public static RecordCollection<
+#nullable disable
+    T
+#nullable restore
+  > CastUp<TDerived>(RecordCollection<TDerived> items)
+    where TDerived : class?, T
+  {
+    return ImmutableArray<T>.CastUp((ImmutableArray<TDerived>)items);
+  }
+
+  #endregion Conversions
 
   #region IImmutableList implementation overrides
 
@@ -326,7 +352,6 @@ public readonly struct RecordCollection<T> :
   }
 
   #endregion IStructuralEquatable
-
 
   private static class ExceptionMessage
   {

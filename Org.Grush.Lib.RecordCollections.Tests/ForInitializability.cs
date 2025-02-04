@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using FluentAssertions;
 
 namespace Org.Grush.Lib.RecordCollections.Tests;
@@ -99,5 +100,59 @@ public static class ForInitializability
     collection
       .Should()
       .BeEquivalentTo(["a", "b"]);
+  }
+
+  public static class Conversions
+  {
+
+    [Fact]
+    public static void CastingFromImmutableArray()
+    {
+      ImmutableArray<string> input = ["a", "b"];
+      var collection = (RecordCollection<string>)input;
+      var castedBack = (ImmutableArray<string>)collection;
+
+      collection.Should().BeEquivalentTo(castedBack);
+      input.Should().NotBeSameAs(castedBack);
+    }
+
+    [Fact]
+    public static void CastUp()
+    {
+      RecordCollection<Sub> sub = [new(1, 10, 100), new(2, 20, 200)];
+
+      var super = RecordCollection<Super>.CastUp(sub);
+
+      super.Should().BeOfType<RecordCollection<Super>>();
+    }
+
+    [Fact]
+    public static void As_FailsOnBadCasts()
+    {
+      RecordCollection<Super> supes = [new(1, 100), new(2, 200)];
+
+      var act = () => supes.As<Sub>();
+
+      act.Should().Throw<InvalidCastException>();
+    }
+
+    [Fact]
+    public static void As_CanCastUp()
+    {
+      RecordCollection<Sub> subs = [new(1, 100, 10000), new(2, 200, 2000)];
+
+      var supers = subs.As<Super>();
+
+      supers
+        .Should()
+        .BeOfType<RecordCollection<Super>>();
+    }
+
+    record Super(int A, int B)
+    {
+      public static implicit operator List<int>(Super sub) => [sub.A, sub.B];
+    }
+
+    record Sub(int A, int B, int C) : Super(A, B);
   }
 }
