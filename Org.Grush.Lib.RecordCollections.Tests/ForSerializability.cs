@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using FluentAssertions;
+using Moq;
 using Newtonsoft.Json;
 using Org.Grush.Lib.RecordCollections.Newtonsoft;
 using Org.Grush.Lib.RecordCollections.Tests.Utilities;
@@ -55,17 +56,70 @@ public static class ForSerializability
           """);
   }
 
+  [Theory]
+  [InlineData(true)]
+  [InlineData(false)]
+  public static void NewtonsoftWithConverterCacheIsEnabled(bool enabled)
+  {
+    var genericCollectionOf = typeof(int);
+
+    var mockType = new Mock<Type>(MockBehavior.Strict);
+    mockType.Setup(m => m.GetGenericArguments()).Returns([genericCollectionOf]);
+    mockType.Setup(m => m.GetHashCode()).Returns(1);
+    mockType.Setup(m => m.ToString()).Returns("_.Mock.Type");
+    mockType.Setup(m => m.Equals(It.IsAny<object>())).Returns((object v) => ReferenceEquals(v, mockType.Object));
+
+    NewtonsoftJsonSerializer serializer = new();
+
+    var factory = new RecordCollectionNewtonsoftJsonConverterFactory(useConverterCache: enabled);
+
+    factory.ReadJson(CreateReaderMock().Object, mockType.Object, null, serializer);
+    factory.ReadJson(CreateReaderMock().Object, mockType.Object, null, serializer);
+
+    mockType.Verify(m => m.GetGenericArguments(), enabled ? Times.Once() : Times.Exactly(2));
+
+    return;
+
+    static Mock<JsonReader> CreateReaderMock()
+    {
+      var mockReader = new Mock<JsonReader>(MockBehavior.Strict);
+      List <(JsonToken Token, string Path, int Depth)> sequence =
+      [
+        (JsonToken.StartArray, "$.Start", 0),
+        (JsonToken.EndArray, "$.End", 1),
+      ];
+      using var enumerator = sequence.GetEnumerator();
+
+      mockReader.Setup(r => r.Read()).Returns(() => enumerator.MoveNext());
+      mockReader.SetupGet(r => r.Path).Returns(() => enumerator.Current.Path);
+      mockReader.SetupGet(r => r.TokenType).Returns(() => enumerator.Current.Token);
+      mockReader.SetupGet(r => r.Depth).Returns(() => enumerator.Current.Depth);
+      mockReader.Setup(r => r.ReadAsInt32()).Returns(() =>
+      {
+        enumerator.MoveNext();
+        return null;
+      });
+
+      return mockReader;
+    }
+  }
+
+
   public static class ForcedEdgeCases
   {
-    [Fact]
-    public static void TryingToWriteWithNewtonsoftThrows()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public static void TryingToWriteWithNewtonsoftThrows(bool useFactory)
     {
       // Assemble
       JsonWriter writer = new JsonTextWriter(new StringWriter());
       RecordCollection<int> data = [1, 2, 3];
       NewtonsoftJsonSerializer serializer = new();
 
-      RecordCollectionNewtonsoftJsonConverter<int> converter = new();
+      JsonConverter converter = useFactory
+        ? new RecordCollectionNewtonsoftJsonConverterFactory()
+        : new RecordCollectionNewtonsoftJsonConverter<int>();
 
       // Act/Assert
       var action = () => converter.WriteJson(writer, data, serializer);
