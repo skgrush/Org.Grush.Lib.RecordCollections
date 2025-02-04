@@ -4,6 +4,7 @@ using FluentAssertions;
 using Newtonsoft.Json;
 using Org.Grush.Lib.RecordCollections.Newtonsoft;
 using Org.Grush.Lib.RecordCollections.Tests.Utilities;
+using JsonException = System.Text.Json.JsonException;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using NewtonsoftJsonSerializer = Newtonsoft.Json.JsonSerializer;
 
@@ -54,19 +55,46 @@ public static class ForSerializability
           """);
   }
 
-  [Fact]
-  public static void TryingToWriteWithNewtonsoftThrows()
+  public static class ForcedEdgeCases
   {
-    // Assemble
-    JsonWriter writer = new JsonTextWriter(new StringWriter());
-    RecordCollection<int> data = [1, 2, 3];
-    NewtonsoftJsonSerializer serializer = new();
+    [Fact]
+    public static void TryingToWriteWithNewtonsoftThrows()
+    {
+      // Assemble
+      JsonWriter writer = new JsonTextWriter(new StringWriter());
+      RecordCollection<int> data = [1, 2, 3];
+      NewtonsoftJsonSerializer serializer = new();
 
-    RecordCollectionNewtonsoftJsonConverter<int> converter = new();
+      RecordCollectionNewtonsoftJsonConverter<int> converter = new();
 
-    // Act/Assert
-    var action = () => converter.WriteJson(writer, data, serializer);
-    action.Should().ThrowExactly<NotSupportedException>();
+      // Act/Assert
+      var action = () => converter.WriteJson(writer, data, serializer);
+      action.Should().ThrowExactly<NotSupportedException>();
+    }
+
+    [Fact]
+    public static void SystemTextJson_UnhandledClosingArray()
+    {
+      var act = () => {
+        // Assemble
+        ReadOnlySpan<byte> bytes = "[ 1, "u8;
+
+        JsonReaderState state = new();
+        Utf8JsonReader reader = new Utf8JsonReader(bytes, false, state);
+        JsonSerializerOptions options = new();
+
+        RecordCollectionStrictJsonConverter<int> converter = new();
+
+        // Act
+        reader.Read();
+        converter.Read(ref reader, typeof(RecordCollection<int>), options);
+      };
+
+      // Assert
+      act.Should()
+        .ThrowExactly<JsonException>()
+        .Where(e => e.Message.Contains("Bad json end"));
+    }
   }
 
   private class Serializers : TheoryData<string, Func<TestRecord<RecordCollection<int>, RecordCollection<string>>, string>>
