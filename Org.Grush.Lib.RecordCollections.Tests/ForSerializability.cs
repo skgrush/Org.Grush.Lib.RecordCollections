@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using FluentAssertions;
 using Moq;
 using Newtonsoft.Json;
@@ -7,6 +8,7 @@ using Org.Grush.Lib.RecordCollections.Newtonsoft;
 using Org.Grush.Lib.RecordCollections.Tests.Utilities;
 using JsonException = System.Text.Json.JsonException;
 using JsonSerializer = System.Text.Json.JsonSerializer;
+using NewtonsoftJsonConverter = Newtonsoft.Json.JsonConverter;
 using NewtonsoftJsonSerializer = Newtonsoft.Json.JsonSerializer;
 
 namespace Org.Grush.Lib.RecordCollections.Tests;
@@ -117,7 +119,7 @@ public static class ForSerializability
       RecordCollection<int> data = [1, 2, 3];
       NewtonsoftJsonSerializer serializer = new();
 
-      JsonConverter converter = useFactory
+      NewtonsoftJsonConverter converter = useFactory
         ? new RecordCollectionNewtonsoftJsonConverterFactory()
         : new RecordCollectionNewtonsoftJsonConverter<int>();
 
@@ -148,6 +150,50 @@ public static class ForSerializability
       act.Should()
         .ThrowExactly<JsonException>()
         .Where(e => e.Message.Contains("Bad json end"));
+    }
+
+    [Fact]
+    public static void SystemTextJson_NonStrictSubConverter()
+    {
+      var act = () => {
+        // Assemble
+        ReadOnlySpan<byte> bytes = """[ { "key": 1 } ]"""u8;
+
+        JsonReaderState state = new();
+        Utf8JsonReader reader = new Utf8JsonReader(bytes, false, state);
+        JsonSerializerOptions options = new();
+        options.Converters.Add(new ImpreciseConverterFactory());
+
+        RecordCollectionStrictJsonConverter<Record> converter = new();
+
+        // Act
+        reader.Read();
+        converter.Read(ref reader, typeof(RecordCollection<Record>), options);
+      };
+
+      act.Should()
+        .ThrowExactly<JsonException>()
+        .Where(e => e.Message.Contains("SubConverter for "));
+    }
+
+    private record Record(int Key);
+
+    private class ImpreciseConverterFactory : JsonConverterFactory
+    {
+      public override bool CanConvert(Type typeToConvert)
+        => !typeToConvert.IsGenericType;
+
+      public override System.Text.Json.Serialization.JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options)
+        => new ImpreciseConverter();
+    }
+
+    private class ImpreciseConverter : System.Text.Json.Serialization.JsonConverter<object>
+    {
+      public override object? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        => throw new NotImplementedException();
+
+      public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
+        => throw new NotImplementedException();
     }
   }
 
