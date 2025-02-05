@@ -55,7 +55,7 @@ jobs:
       - name: Restore solution dependencies
         run: dotnet restore
       - name: Tests
-        run: ./Org.Grush.Lib.RecordCollections.Tests/run-tests.sh
+        run: bash ./Org.Grush.Lib.RecordCollections.Tests/run-tests.sh
       - name: Code coverage
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
