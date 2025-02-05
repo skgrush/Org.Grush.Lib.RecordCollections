@@ -52,8 +52,10 @@ MyRecord a = new("Joseph", ["Joe", "Joey"]);
 MyRecord b = new("Joseph", ["Joe", "Joey"]);
 
 var areEqual = a.Equals(b);
+var areEqualsSign = a == b;
 
 areEqual.Should().BeTrue();
+areEqualsSign.Should().BeTrue();
 ```
 
 additionally, `RecordCollection<T>`s can be used in hash structures like `HashSet`s:
@@ -67,6 +69,16 @@ var contains = set.Contains([1.1, 2.2]);
 
 contains.Should().BeTrue();
 ```
+
+**`Equals` rules:**
+1. Calls to `RecordCollection<T>#Equals(object)` or `RecordCollection<T>#Equals(object, IEqualityComparer<T>)` are only supported for other `RecordCollection<T>`.
+2. Explicit calls to `((IStructuralEquatable)RecordCollection<T>)#Equals(object?, IEqualityComparer)`
+follow a priority order for checking:
+   1. if other implements `IEnumerable<T>` AND comparer implements `IEqualityComparer<T>`,
+      we run a check using the `<T>`-typed equality comparison.
+   2. if other implements `IEnumerable` not `<T>`, a de-optimized `SequenceEqual` is used.
+   3. if other implements `IStructuralEquatable`, we call `#GetHashCode(comparer)` on each instance and compare;
+      **NOTE: this eagerly evaluates the entire sequence**.
 
 ## Serialization
 
@@ -113,6 +125,9 @@ Newtonsoft deserialization is supported using the supplementary `Org.Grush.Lib.R
 either with the generic `RecordCollectionNewtonsoftJsonConverterFactory`,
 or if a specific type is known then `RecordCollectionNewtonsoftJsonConverter<T>` converter can be used directly.
 
+See the [NuGet package](https://www.nuget.org/packages/Org.Grush.Lib.RecordCollections.Newtonsoft)
+or the [GitHub source](https://github.com/skgrush/Org.Grush.Lib.RecordCollections/tree/main/Org.Grush.Lib.RecordCollections.Newtonsoft).
+
 ```cs
 using Newtonsoft.Json;
 using Org.Grush.Lib.RecordCollections.Newtonsoft;
@@ -155,7 +170,6 @@ and supports the collection builder syntax.
 .NET Standard 2.1 version requires two System NuGet packages, `System.Collections.Immutable` and `System.Text.Json`,
 but supports .NET 5–7.
 
-.NET Standard 2.0 version requires the above System NuGet packages,
+.NET Standard 2.0 version requires the above System NuGet packages and also the `Microsoft.Bcl.HashCode` NuGet package,
 loses some nullability checks,
-and internally uses a shim for the `HashCode` struct,
 but supports a significantly broader set of .NET versions including 4.6.1–4.8, Mono 5.4, and UWP.

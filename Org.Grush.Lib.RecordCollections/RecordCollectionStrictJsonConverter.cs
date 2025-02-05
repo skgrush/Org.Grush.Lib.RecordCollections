@@ -3,6 +3,12 @@ using System.Text.Json.Serialization;
 
 namespace Org.Grush.Lib.RecordCollections;
 
+/// <summary>
+/// An overly-strict <see cref="JsonConverter"/> for de/serializing <see cref="RecordCollection{T}"/>s.
+/// Requires that the JSON environment be able to provide a <see cref="JsonConverter{T}"/>,
+/// which may be a problem for more-complex collections.
+/// </summary>
+/// <typeparam name="T">The type of element in the collection.</typeparam>
 #if NET8_0_OR_GREATER
 [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("JSON de/serialization requires references to type T which may not be statically analyzed.")]
 [System.Diagnostics.CodeAnalysis.RequiresDynamicCode("JSON de/serialization requires a JsonConverter for <T>, which cannot be statically analyzed. For AOT, use this in a JsonSerializerContext partial in the Converters list on the JsonSourceGenerationOptionsAttribute.")]
@@ -33,14 +39,15 @@ public class RecordCollectionStrictJsonConverter<T> : JsonConverter<RecordCollec
       );
     }
 
+    // TODO: is this the correct exit approach? We can't exit with an incomplete RecordCollection...
     throw new JsonException("Bad json end; expected EndArray but reached end of sequence.");
   }
 
   public override void Write(Utf8JsonWriter writer, RecordCollection<T> value, JsonSerializerOptions options)
   {
     writer.WriteStartArray();
-    var subConverter = GetSubConverter(options);
 
+    var subConverter = GetSubConverter(options);
     foreach (T subValue in value)
       subConverter.Write(writer, subValue, options);
 

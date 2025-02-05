@@ -4,8 +4,12 @@ using System.Text.Json.Serialization;
 
 namespace Org.Grush.Lib.RecordCollections;
 
+/// <summary>
+/// Dynamically resolve <see cref="RecordCollectionStrictJsonConverter{T}"/>s
+/// if not in AOT mode.
+/// </summary>
 #if NET8_0_OR_GREATER
-[System.Diagnostics.CodeAnalysis.RequiresDynamicCode("Dynamically references generic types that may not be available at runtime.")]
+[System.Diagnostics.CodeAnalysis.RequiresDynamicCode("Dynamically references generic RecordCollection<> for determining if factory can deserialize type.")]
 #endif
 public class RecordCollectionJsonConverterFactory : JsonConverterFactory
 {
@@ -18,9 +22,9 @@ public class RecordCollectionJsonConverterFactory : JsonConverterFactory
     Type elementType = typeToConvert.GetGenericArguments()[0];
 
     return Activator.CreateInstance(
-      typeof(RecordCollectionStrictJsonConverter<>).MakeGenericType([
+      typeof(RecordCollectionStrictJsonConverter<>).MakeGenericType(
         elementType
-      ]),
+      ),
       BindingFlags.Instance | BindingFlags.Public,
       binder: null,
       args: [],

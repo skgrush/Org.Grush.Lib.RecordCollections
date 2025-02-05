@@ -55,7 +55,14 @@ jobs:
       - name: Restore solution dependencies
         run: dotnet restore
       - name: Tests
-        run: dotnet test ./Org.Grush.Lib.RecordCollections.Tests --no-restore
+        run: bash ./Org.Grush.Lib.RecordCollections.Tests/run-tests.sh
+      - name: Code coverage
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: ./Org.Grush.Lib.RecordCollections.Tests/TestResults/**/coverage.cobertura.xml
+          badge: true
+          fail_below_min: true
+          thresholds: '100 100'
       - name: AOT Tests
         run: ./Org.Grush.Lib.RecordCollections.AotTests/run-aot-test.sh
       - name: Pack

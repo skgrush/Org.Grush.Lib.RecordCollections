@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using FluentAssertions;
@@ -6,10 +7,10 @@ using FluentAssertions.Execution;
 namespace Org.Grush.Lib.RecordCollections.Tests;
 
 [SuppressMessage("Usage", "xUnit1026:Theory methods should use all of their parameters")]
-public class ForImmutability
+public static class ForImmutability
 {
   [Fact]
-  public void AndAlwaysReadOnly()
+  public static void AndAlwaysReadOnly()
   {
     using var _ = new AssertionScope();
 
@@ -21,9 +22,39 @@ public class ForImmutability
       .BeTrue();
   }
 
+  [Fact]
+  public static void ItemRefIsReadOnly()
+  {
+    var collection = RecordCollection.Create([
+      (Key: 1, Prop: "A"),
+      (Key: 2, Prop: "B"),
+    ]);
+
+    collection[0].Should().NotBeSameAs(collection[0]);
+
+    unsafe
+    {
+      fixed ((int Key, string Prop)* pa = &collection.ItemRef(0), pb = &collection.ItemRef(0))
+      {
+        (pa == pb).Should().BeTrue();
+      }
+    }
+  }
+
+  [Fact]
+  public static void AsSpanAndAsMemoryAreSame()
+  {
+    RecordCollection<string> collection = ["a", "b"];
+
+    var span = collection.AsSpan();
+    var mem = collection.AsMemory();
+
+    (mem.Span == span).Should().BeTrue();
+  }
+
   [Theory]
   [ClassData(typeof(UnsupportedMethods))]
-  public void AndThrowForUnsupportedMethods(string name, Action action)
+  public static void AndThrowForUnsupportedMethods(string name, Action action)
   {
     action
       .Should()
@@ -49,6 +80,12 @@ public class ForImmutability
         ((ICollection<long>)collection).Remove,
         ((IList<long>)collection).Insert,
         ((IList<long>)collection).RemoveAt,
+        ((IList)collection).Clear,
+        ((IList)collection).RemoveAt,
+        ((IList)collection).Add,
+        ((ICollection)collection).CopyTo,
+        ((IList)collection).Insert,
+        ((IList)collection).Remove,
       };
 
       foreach (var fn in functions)
@@ -58,8 +95,9 @@ public class ForImmutability
           GetDefaultCallOfMethod(collection, fn.Method)
         );
       }
-      
+
       Add("RecordCollection<T>[0] =", (() => collection[0] = 0));
+      Add("((IList)RecordCollection<T>)[0] =", () => ((IList)collection)[0] = 0);
     }
   }
 
