@@ -278,7 +278,7 @@ public readonly struct RecordCollection<T> :
   /// Sequence equality check for an enumerable sequence of unknown type.
   /// </summary>
   [Pure]
-  public bool SequenceEqual(IEnumerable otherEnumerable, IEqualityComparer comparer)
+  public bool UntypedSequenceEqual(IEnumerable otherEnumerable, IEqualityComparer comparer)
   {
     int count = Count;
     if (otherEnumerable is ICollection list && count != list.Count)
@@ -323,7 +323,7 @@ public readonly struct RecordCollection<T> :
       return ((IStructuralEquatable)_data).Equals(ir.InnerData, comparer);
 
     if (other is IEnumerable enumerable)
-      return SequenceEqual(enumerable, comparer);
+      return UntypedSequenceEqual(enumerable, comparer);
 
     if (other is IStructuralEquatable equatable)
       return ((IStructuralEquatable)this).GetHashCode(comparer) == equatable.GetHashCode(comparer);
